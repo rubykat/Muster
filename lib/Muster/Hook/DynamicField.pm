@@ -171,21 +171,6 @@ sub get_function_result {
         my $result = Math::Calc::Parser->evaluate($argvals);
         $value = "${argvals} = ${result}";
     }
-    elsif ($func eq 'dyncost')
-    {
-        # dyncost(per_hour)
-        if ($leaf->{meta}->{labour_time}
-                or $leaf->{meta}->{materials_cost})
-        {
-            my $cost_per_hour = $argvals;
-            my $labour_cost = ($leaf->{meta}->{labour_time} / 60) * $cost_per_hour;
-            my $itemize_cost = ($leaf->{meta}->{itemize_time} / 60) * $cost_per_hour;
-            my $wholesale = $leaf->{meta}->{materials_cost} + $labour_cost + $itemize_cost;
-            my $overheads = Muster::Hook::Costings::calculate_overheads($wholesale);
-            my $retail = $wholesale + $overheads;
-            $value = "dyncost($cost_per_hour) = $retail";
-        }
-    }
 
     if (!defined $value)
     {
