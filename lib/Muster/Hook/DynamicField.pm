@@ -25,7 +25,6 @@ use Muster::LeafFile;
 use YAML::Any;
 use POSIX qw(strftime);
 use Math::Calc::Parser;
-use Muster::Hook::Costings;
 
 =head1 METHODS
 
