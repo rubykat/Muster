@@ -131,7 +131,7 @@ sub process {
     # arbitrary files named *.jpg, etc.
     my $magic;
     my $offset = 0;
-    open(my $in, '<', $img_info->{filename}) or croak sprintf(gettext("failed to read %s: %s"), $imgpage, $!);
+    open(my $in, '<', $img_info->{filename}) or croak sprintf("failed to read %s: %s", $imgpage, $!);
     binmode($in);
 
     if ($extension =~ m/^(jpeg|jpg)$/is)
@@ -161,7 +161,7 @@ sub process {
     if (defined $magic)
     {
         my $content;
-        read($in, $content, length $magic) or croak sprintf(("failed to read %s: %s"), $imgpage, $!);
+        read($in, $content, length $magic) or croak sprintf("failed to read %s: %s", $imgpage, $!);
         if ($magic ne $content) {
             croak sprintf(("\"%s\" does not seem to be a valid %s file"), $imgpage, $format);
         }
