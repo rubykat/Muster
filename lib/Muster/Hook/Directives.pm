@@ -106,8 +106,10 @@ sub do_directives {
                 {
                     $val=$2;
                     $val=~s/\r\n/\n/mg;
-                    $val=~s/^\n+//g;
-                    $val=~s/\n+$//g;
+                    $val=~s/^\n+//g; # remove starting newlines
+                    $val=~s/\n+$//g; # remove trailing newlines
+                    # to compensate for the newline removal, enable substitution of \n as a newline
+                    $val=~s/\\n/\n/g;
                 }
                 elsif (defined $3)
                 {
