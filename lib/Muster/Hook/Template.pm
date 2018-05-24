@@ -219,7 +219,7 @@ sub repeat_n {
         push @out, $line;
         $a++;
     }
-    return join("", @out);
+    return join("\n", @out);
 } # repeat_n
 
 =head2 repeat_for
@@ -252,7 +252,7 @@ sub repeat_for {
         $a++;
         $i++;
     }
-    return join("", @out);
+    return join("\n", @out);
 } # repeat_for
 
 =head2 math
