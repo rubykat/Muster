@@ -148,11 +148,11 @@ sub _format_hash {
     {
         if ($level == 0)
         {
-            $out .= "<br/><b>$key:</b> ";
+            $out .= "<div class=yhash><b>$key:</b> ";
         }
         else
         {
-            $out .= '<br/>' . '&nbsp;&nbsp;' x $level . $key . ': ';
+            $out .= sprintf('<span class=lev%d>',$level) . '&nbsp;&nbsp;' x $level . $key . ': ';
         }
 
         my $v = $hash->{$key};
@@ -167,6 +167,14 @@ sub _format_hash {
         elsif (ref $v eq 'ARRAY')
         {
             $out .= _format_array($v,$level + 1);
+        }
+        if ($level == 0)
+        {
+            $out .= "</div>\n";
+        }
+        else
+        {
+            $out .= "</span>\n";
         }
     }
     return $out;
