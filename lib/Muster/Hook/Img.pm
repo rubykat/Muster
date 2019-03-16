@@ -197,7 +197,6 @@ sub process {
     else
     {
         my $im = Image::Magick->new();
-        ##my $r = $im->Read("$format:". $img_info->{filename});
         my $r = $im->Read(filename=>$img_info->{filename});
         croak sprintf(("failed to read %s: %s"), $imgpage, $r) if $r;
 
