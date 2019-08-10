@@ -148,21 +148,7 @@ sub process {
         {
             $len = 'Flash';
         }
-        if ($meta->{tags})
-        {
-            if (ref $meta->{tags} eq 'ARRAY')
-            {
-                push @{$meta->{tags}}, $len;
-            }
-            else
-            {
-                $meta->{tags} .= "|$len";
-            }
-        }
-        else
-        {
-            $meta->{tags} = $len;
-        }
+        $meta->{story_length} = $len;
     }
     $leaf->{meta} = $meta;
 
