@@ -71,10 +71,30 @@ sub scan_some_pagefiles {
     my $self = shift;
     my @files = @_;
 
+    my %the_pages = ();
     foreach my $file (@files)
     {
-        $self->_scan_one_pagefile($file);
+        my $leaf = $self->_scan_one_pagefile($file);
+        if (!defined $leaf)
+        {
+            # the page was not found, therefore it has been deleted
+            my $pagename = $file;
+            $pagename =~ s/\.\w+$//; # remove the extension to get the pagename
+            if ($self->{metadb}->delete_one_page($pagename))
+            {
+                warn "DELETED: $file\n";
+            }
+            else
+            {
+                warn "UNKNOWN: $file\n";
+            }
+        }
+        else
+        {
+            $the_pages{$leaf->pagename} = $leaf->meta;
+        }
     }
+    $self->{metadb}->update_some_pages(%the_pages);
 
     $self->{metadb}->update_derived_tables();
 } # scan_some_pagefiles
@@ -101,8 +121,9 @@ These are private to the module.
 
 Scan a single pagefile; this expects the name of a file
 relative to the page_dir the file is in.
+This returns the leaf with all the relevant data in it.
 
-    $self->_scan_one_pagefile($filename);
+    my $leaf = $self->_scan_one_pagefile($filename);
 
 =cut
 
@@ -112,9 +133,7 @@ sub _scan_one_pagefile {
 
     return if !$filename;
 
-    my $pagename = $filename;
-    $pagename =~ s/\.\w+$//; # remove the extension to get the pagename
-    my $found_page;
+    my $found_leaf;
     foreach my $page_dir (@{$self->{page_dirs}})
     {
         my $finder = sub {
@@ -134,9 +153,9 @@ sub _scan_one_pagefile {
                     );
                     if ($leaf)
                     {
-                        if (!$found_page)
+                        if (!$found_leaf)
                         {
-                            $found_page = $leaf;
+                            $found_leaf = $leaf;
                         }
                     }
                 }
@@ -147,29 +166,7 @@ sub _scan_one_pagefile {
         find({wanted=>$finder, no_chdir=>1}, $page_dir);
     }
 
-    if (!defined $found_page)
-    {
-        # the page was not found, therefore it has been deleted
-        if ($self->{metadb}->delete_one_page($pagename))
-        {
-            warn "DELETED: $filename\n";
-        }
-        else
-        {
-            warn "UNKNOWN: $filename\n";
-        }
-    }
-    else
-    {
-        my $meta = $found_page->meta();
-        unless (defined $meta)
-        {
-            warn __PACKAGE__, " scan_one_pagefile meta for '$pagename' not found";
-            return;
-        }
-        # add the meta to the metadb
-        $self->{metadb}->update_one_page($pagename, %{$meta});
-    }
+    return $found_leaf;
 
 } # _scan_one_pagefile
 

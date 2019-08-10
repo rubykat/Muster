@@ -73,6 +73,27 @@ sub update_one_page {
 
 } # update_one_page
 
+=head2 update_some_pages
+
+Update the meta information for more than one page
+
+    $self->update_some_pages($page=>{...},$page2=>{}...);
+
+=cut
+
+sub update_some_pages {
+    my $self = shift;
+    my %args = @_;
+
+    if (!$self->_connect())
+    {
+        return undef;
+    }
+
+    $self->_update_some_entries(%args);
+
+} # update_some_pages
+
 =head2 update_all_pages
 
 Update the meta information for all pages.
@@ -672,6 +693,54 @@ sub _drop_main_tables {
 
     return 1;
 } # _drop_main_tables
+
+=head2 _update_some_entries
+
+Update some pages, adding new ones and updating existing ones.
+This does NOT delete pages.
+
+    $self->_update_some_entries($page=>{...},$page2=>{}...);
+
+=cut
+sub _update_some_entries {
+    my $self = shift;
+    my %pages = @_;
+
+    my $dbh = $self->{dbh};
+
+    # update/add pages
+    my $transaction_on = 0;
+    my $num_trans = 0;
+    foreach my $pn (sort keys %pages)
+    {
+        print STDERR "UPDATING $pn\n";
+        if (!$transaction_on)
+        {
+            my $ret = $dbh->do("BEGIN TRANSACTION;");
+            if (!$ret)
+            {
+                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+            }
+            $transaction_on = 1;
+            $num_trans = 0;
+        }
+        $self->_add_page_data($pn, %{$pages{$pn}});
+        # do the commits in bursts
+        $num_trans++;
+        if ($transaction_on and $num_trans > 100)
+        {
+            $self->_commit();
+            $transaction_on = 0;
+            $num_trans = 0;
+        }
+    }
+    if ($transaction_on)
+    {
+        $self->_commit();
+    }
+
+    print STDERR "UPDATING DONE\n";
+} # _update_some_entries
 
 =head2 _update_all_entries
 
