@@ -24,6 +24,7 @@ use Mojo::Base 'Muster::Hook';
 use Muster::Hooks;
 use Muster::LeafFile;
 use YAML::Any;
+use Text::NeatTemplate;
 
 =head1 METHODS
 
@@ -39,6 +40,7 @@ sub register {
 
     # we need to be able to look things up in the database
     $self->{metadb} = $hookmaster->{metadb};
+    $self->{_nt} = Text::NeatTemplate->new();
 
     $hookmaster->add_hook('fieldsubst' => sub {
             my %args = @_;
@@ -77,14 +79,14 @@ sub process {
     my $page = $leaf->pagename;
 
     # substitute {{$var}} variables (source-page)
-    $content =~ s/(\\?)\{\{\$([-_\w]+)\}\}/$self->get_field_value($1,$2,$leaf)/eg;
+    $content =~ s/(\\?)\{\{\$([-_\w:]+)\}\}/$self->get_field_value($1,$2,$leaf)/eg;
 
     # we can't get other pages' meta-data if we are scanning
     # because they haven't been added to the database yet
     if ($phase eq $Muster::Hooks::PHASE_BUILD)
     {
         # substitute {{$page#var}} variables (source-page)
-        $content =~ s/(\\?)\{\{\$([-\w\/]+)#([-_\w]+)\}\}/$self->get_other_page_field_value($1, $3,$leaf,$2)/eg;
+        $content =~ s/(\\?)\{\{\$([-\w\/]+)#([-_\w:]+)\}\}/$self->get_other_page_field_value($1, $3,$leaf,$2)/eg;
     }
 
     $leaf->{cooked} = $content;
@@ -109,19 +111,20 @@ sub get_field_value {
 
     # force all fields to lower-case
     $field = lc($field);
+    my ($varname, @formats) = split(':', $field);
 
     my $value = '';
-    if ($field eq 'page') # page is pagename
+    if ($varname eq 'page') # page is pagename
     {
         $value = $leaf->pagename;
     }
-    elsif (exists $leaf->{meta}->{$field})
+    elsif (exists $leaf->{meta}->{$varname})
     {
-        $value = $leaf->{meta}->{$field};
+        $value = $leaf->{meta}->{$varname};
     }
-    elsif (exists $leaf->{$field})
+    elsif (exists $leaf->{$varname})
     {
-        $value = $leaf->{$field};
+        $value = $leaf->{$varname};
     }
     if (!defined $value)
     {
@@ -129,11 +132,18 @@ sub get_field_value {
     }
     if (ref $value eq 'ARRAY')
     {
-        $value = join(' ', @{$value});
+        $value = join('|', @{$value});
     }
     elsif (ref $value eq 'HASH')
     {
         $value = Dump($value);
+    }
+
+    # Format the value
+    foreach my $format (@formats) { 
+	$value = $self->{_nt}->convert_value(value=>$value,
+	    format=>$format,
+	    name=>$varname); 
     }
     return $value;
 } # get_field_value
@@ -157,6 +167,7 @@ sub get_other_page_field_value {
 
     # force all fields to lower-case
     $field = lc($field);
+    my ($varname, @formats) = split(':', $field);
 
     my $value = '';
     my $use_page = $self->{metadb}->bestlink($leaf->pagename, $other_page);
@@ -164,16 +175,16 @@ sub get_other_page_field_value {
     if ($use_page)
     {
         my $info = $self->{metadb}->page_or_file_info($use_page);
-        if ($field eq 'page') # page is pagename
+        if ($varname eq 'page') # page is pagename
         {
             $value = $info->{pagename};
         }
-        elsif (exists $info->{$field})
+        elsif (exists $info->{$varname})
         {
-            $value = $info->{$field};
+            $value = $info->{$varname};
             if (ref $value eq 'ARRAY')
             {
-                $value = join(' ', @{$value});
+                $value = join('|', @{$value});
             }
             elsif (ref $value eq 'HASH')
             {
@@ -182,6 +193,12 @@ sub get_other_page_field_value {
         }
     }
 
+    # Format the value
+    foreach my $format (@formats) { 
+	$value = $self->{_nt}->convert_value(value=>$value,
+	    format=>$format,
+	    name=>$varname); 
+    }
     return $value;
 } # get_other_page_field_value
 
