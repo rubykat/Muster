@@ -145,7 +145,7 @@ sub get_field_value {
 	    format=>$format,
 	    name=>$varname); 
     }
-    return $value;
+    return ($value ? $value : '');
 } # get_field_value
 
 =head2 get_other_page_field_value
@@ -199,7 +199,7 @@ sub get_other_page_field_value {
 	    format=>$format,
 	    name=>$varname); 
     }
-    return $value;
+    return ($value ? $value : '');
 } # get_other_page_field_value
 
 1;
