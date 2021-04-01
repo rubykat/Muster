@@ -545,9 +545,10 @@ sub _create_tables {
 
 =head2 _generate_derived_tables
 
-Create and populate the flatfields table using the data from the deepfields table.
-Expects the deepfields table to be up to date, so this needs to be called
-at the end of the scanning pass.
+The flatfields table may or may not need to be re-defined, depending on
+whether there are new or deleted non-hidden fields since the last time
+the flatfields table was updated. If the column definitions are unchanged,
+one does not need to re-define the flatfields table, just update its contents.
 
     $self->_generate_derived_tables();
 
@@ -563,7 +564,178 @@ sub _generate_derived_tables {
     # ---------------------------------------------------
     # TABLE: flatfields
     # ---------------------------------------------------
-    print STDERR "Generating flatfields table\n";
+    
+    # Figure out if we need to re-define the table.
+    my $redefine_table = 0;
+    
+    # The non-hidden fieldnames should be in alphabetical
+    # order; the column-names will be "page", followed
+    # by fieldnames in alphabetical order.
+    # Therefore, prepending "page" to the fieldnames
+    # should make them match, if the flatfields table
+    # does not need to be re-defined.
+    my @fieldnames = $self->_get_all_nonhidden_fieldnames();
+    unshift @fieldnames, 'page';
+    my @col_names = $self->_column_names('flatfields');
+
+    # Check if these arrays are the same length
+    if (scalar @fieldnames != scalar @col_names)
+    {
+        $redefine_table = 1;
+    }
+    else # check if the contents match
+    {
+        for (my $i=0;
+            (!$redefine_table and $i < scalar @fieldnames);
+            $i++)
+        {
+            if ($fieldnames[$i] ne $col_names[$i])
+            {
+                $redefine_table = 1;
+            }
+        }
+    }
+    if ($redefine_table)
+    {
+        $self->_generate_new_derived_tables();
+    }
+    else
+    {
+        $self->_update_derived_tables();
+    }
+
+    return 1;
+} # _generate_derived_tables
+
+=head2 _update_derived_tables
+
+If the flatfields table definition hasn't been changed, it needs
+to be updated using the data from the deepfields table.
+Expects the deepfields table to be up to date, so this needs to be called
+at the end of the scanning pass.
+
+    $self->_update_derived_tables();
+
+=cut
+
+sub _update_derived_tables {
+    my $self = shift;
+
+    return unless $self->{dbh};
+
+    my $dbh = $self->{dbh};
+
+    # ---------------------------------------------------
+    # TABLE: flatfields
+    # ---------------------------------------------------
+    print STDERR "Updating flatfields table\n";
+    
+    # We need to insert/update values for existing pages,
+    # and delete values for non-existing pages.
+    
+    # Prepare the insert-or-replace query
+    my @fieldnames = $self->_get_all_nonhidden_fieldnames();
+    my $placeholders = join ", ", ('?') x @fieldnames;
+    my $iq = 'INSERT OR REPLACE INTO flatfields (page, '
+    . join(", ", @fieldnames) . ') VALUES (?, ' . $placeholders . ');';
+    my $isth = $self->_prepare($iq);
+    if (!$isth)
+    {
+        croak __PACKAGE__ . " failed to prepare '$iq' : $DBI::errstr";
+    }
+
+    my $ret;
+    my $transaction_on = 0;
+    my $num_trans = 0;
+    my @pagefiles = $self->_get_all_pagefiles();
+    foreach my $page (@pagefiles)
+    {
+        if (!$transaction_on)
+        {
+            my $ret = $dbh->do("BEGIN TRANSACTION;");
+            if (!$ret)
+            {
+                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+            }
+            $transaction_on = 1;
+            $num_trans = 0;
+        }
+        my $meta = $self->_get_fields_for_page($page);
+
+        my @values = ();
+        foreach my $fn (@fieldnames)
+        {
+            my $val = $meta->{$fn};
+            if (!defined $val)
+            {
+                push @values, undef;
+            }
+            elsif (ref $val)
+            {
+                $val = join("|", @{$val});
+                push @values, $val;
+            }
+            else
+            {
+                push @values, $val;
+            }
+        }
+        # we now have values to insert
+        $ret = $isth->execute($page, @values);
+        if (!$ret)
+        {
+            croak __PACKAGE__ . " failed '$iq' (" . join(',', ($page, @values)) . "): $DBI::errstr";
+        }
+        # do the commits in bursts
+        $num_trans++;
+        if ($transaction_on and $num_trans > 100)
+        {
+            $self->_commit();
+            $transaction_on = 0;
+            $num_trans = 0;
+        }
+
+    } # for each page
+
+    # Now, delete rows that don't have matching pages
+    my $dq = 'DELETE FROM flatfields WHERE page NOT IN (SELECT page FROM pagefiles);';
+    $ret = $dbh->do($dq);
+    if (!$ret)
+    {
+        croak "FAILED to execute '$dq' $DBI::errstr";
+    }
+    
+    if ($transaction_on)
+    {
+        $self->_commit();
+    }
+
+    print STDERR "Updated flatfields table\n";
+    return 1;
+} # _update_derived_tables
+
+=head2 _generate_new_derived_tables
+
+If the definition of the flatfields table has changed, it needs to be recreated.
+Create and populate the flatfields table using the data from the deepfields table.
+Expects the deepfields table to be up to date, so this needs to be called
+at the end of the scanning pass.
+
+    $self->_generate_new_derived_tables();
+
+=cut
+
+sub _generate_new_derived_tables {
+    my $self = shift;
+
+    return unless $self->{dbh};
+
+    my $dbh = $self->{dbh};
+
+    # ---------------------------------------------------
+    # TABLE: flatfields
+    # ---------------------------------------------------
+    print STDERR "Generating new flatfields table\n";
     
     # Drop the table, as it is going to be re-defined.
     my $q = "DROP TABLE IF EXISTS flatfields;";
@@ -664,7 +836,7 @@ sub _generate_derived_tables {
 
     print STDERR "Generated flatfields table\n";
     return 1;
-} # _generate_derived_tables
+} # _generate_new_derived_tables
 
 =head2 _drop_main_tables
 
@@ -1068,6 +1240,46 @@ sub _do_one_col_query {
     }
     return \@results;
 } # _do_one_col_query
+
+=head2 _column_names
+
+Get the column names of the given table.
+
+my @col_names = $self->_column_names($table);
+
+=cut
+
+sub _column_names {
+    my $self = shift;
+    my $tbl_name = shift;
+
+    # The PRAGMA table_info returns ALL the information
+    # about the given table, as a table with columns:
+    # cid|name|type|notnull|dflt_value|pk
+    # We are interested in the second column, "name".
+    my $q = "PRAGMA table_info($tbl_name);";
+    my $dbh = $self->{dbh};
+
+    my $sth = $self->_prepare($q);
+    if (!$sth)
+    {
+        croak "FAILED to prepare '$q' $DBI::errstr";
+    }
+    my $ret = $sth->execute();
+    if (!$ret)
+    {
+        croak "FAILED to execute '$q' $DBI::errstr";
+    }
+    my @results = ();
+    my @row;
+    while (@row = $sth->fetchrow_array)
+    {
+        # The "name" is the second column.
+        # Second column starting from 0 is 1
+        push @results, $row[1];
+    }
+    return @results;
+} # _column_names
 
 =head2 _total_pagefiles
 
