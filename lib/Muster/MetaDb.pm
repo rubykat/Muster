@@ -745,6 +745,7 @@ sub _generate_new_derived_tables {
         croak __PACKAGE__ . " failed '$q' : $DBI::errstr";
     }
     my @fieldnames = $self->_get_all_nonhidden_fieldnames();
+    say STDERR "FIELDS: ", join(', ', @fieldnames);
 
     # need to define some fields as numeric
     my @field_defs = ();
