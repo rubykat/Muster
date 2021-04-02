@@ -617,7 +617,7 @@ at the end of the scanning pass.
 If the "pages" argument exists, just update those pages rather than
 all the pages.
 
-    $self->_update_derived_tables(pages=>%the_pages);
+    $self->_update_derived_tables(pages=>{%the_pages});
 
 =cut
 
