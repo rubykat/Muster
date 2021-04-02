@@ -154,7 +154,7 @@ sub update_derived_tables {
         return undef;
     }
 
-    $self->_generate_derived_tables();
+    $self->_generate_derived_tables(%args);
 
 } # update_derived_tables
 
@@ -556,6 +556,7 @@ one does not need to re-define the flatfields table, just update its contents.
 
 sub _generate_derived_tables {
     my $self = shift;
+    my %args = @_;
 
     return unless $self->{dbh};
 
@@ -601,7 +602,7 @@ sub _generate_derived_tables {
     }
     else
     {
-        $self->_update_derived_tables();
+        $self->_update_derived_tables(%args);
     }
 
     return 1;
@@ -613,13 +614,16 @@ If the flatfields table definition hasn't been changed, it needs
 to be updated using the data from the deepfields table.
 Expects the deepfields table to be up to date, so this needs to be called
 at the end of the scanning pass.
+If the "pages" argument exists, just update those pages rather than
+all the pages.
 
-    $self->_update_derived_tables();
+    $self->_update_derived_tables(pages=>%the_pages);
 
 =cut
 
 sub _update_derived_tables {
     my $self = shift;
+    my %args = @_;
 
     return unless $self->{dbh};
 
@@ -647,7 +651,9 @@ sub _update_derived_tables {
     my $ret;
     my $transaction_on = 0;
     my $num_trans = 0;
-    my @pagefiles = $self->_get_all_pagefiles();
+    my @pagefiles = (defined $args{pages}
+        ? sort keys %{$args{pages}}
+        : $self->_get_all_pagefiles());
     foreach my $page (@pagefiles)
     {
         if (!$transaction_on)

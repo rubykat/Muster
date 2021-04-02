@@ -96,7 +96,7 @@ sub scan_some_pagefiles {
     }
     $self->{metadb}->update_some_pages(%the_pages);
 
-    $self->{metadb}->update_derived_tables();
+    $self->{metadb}->update_derived_tables(pages=>{%the_pages});
 } # scan_some_pagefiles
 
 =head2 scan_all
