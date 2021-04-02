@@ -89,7 +89,7 @@ sub process {
     {
         if ($image eq 'defaults' and $phase eq $Muster::Hooks::PHASE_SCAN)
         {
-            $leaf->{meta}->{img_defaults} = Dump(@p);
+            $leaf->{meta}->{_img_defaults} = Dump(@p);
         }
         return "";
     }
@@ -98,10 +98,10 @@ sub process {
     # ---------------------------------------------------------
 
     # Image defaults
-    if (exists $leaf->{meta}->{img_defaults}
-            and defined $leaf->{meta}->{img_defaults})
+    if (exists $leaf->{meta}->{_img_defaults}
+            and defined $leaf->{meta}->{_img_defaults})
     {
-        my @d = Load($leaf->{meta}->{img_defaults});
+        my @d = Load($leaf->{meta}->{_img_defaults});
         my %d = @d;
         foreach my $key (keys %d)
         {
