@@ -131,7 +131,7 @@ sub process {
     # arbitrary files named *.jpg, etc.
     my $magic;
     my $offset = 0;
-    open(my $in, '<', $img_info->{filename}) or croak sprintf("failed to read %s: %s", $imgpage, $!);
+    open(my $in, '<', $img_info->{filename}) or croak sprintf("A. failed to read %s: %s", $imgpage, $!);
     binmode($in);
 
     if ($extension =~ m/^(jpeg|jpg)$/is)
@@ -161,7 +161,7 @@ sub process {
     if (defined $magic)
     {
         my $content;
-        read($in, $content, length $magic) or croak sprintf("failed to read %s: %s", $imgpage, $!);
+        read($in, $content, length $magic) or croak sprintf("B. failed to read %s: %s", $imgpage, $!);
         if ($magic ne $content) {
             croak sprintf(("\"%s\" does not seem to be a valid %s file"), $imgpage, $format);
         }
@@ -198,7 +198,7 @@ sub process {
     {
         my $im = Image::Magick->new();
         my $r = $im->Read(filename=>$img_info->{filename});
-        croak sprintf(("failed to read %s: %s"), $imgpage, $r) if $r;
+        croak sprintf(("C. failed to read %s: %s"), $imgpage, $r) if $r;
 
         if (! defined $im->Get("width") || ! defined $im->Get("height"))
         {
@@ -247,7 +247,7 @@ sub process {
             {
                 $im = Image::Magick->new;
                 $r = $im->Read($outfile);
-                croak sprintf("failed to read %s: %s", $outfile, $r) if $r;
+                croak sprintf("D. failed to read %s: %s", $outfile, $r) if $r;
             }
             else
             {
