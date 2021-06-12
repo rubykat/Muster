@@ -82,11 +82,25 @@ sub process {
         return "";
     }
 
-    # fill in the template with the leaf's data
-    my $result = $self->{neat}->fill_in(
-        data_hash=>$leaf->{meta},
-        template=>$params{template},
-    );
+    # Check simple IF condition
+    my $go_ahead = 1;
+    if (exists $params{if} and $params{if})
+    {
+        $go_ahead = (exists $leaf->{meta}->{$params{if}}
+                and defined $leaf->{meta}->{$params{if}}
+                and $leaf->{meta}->{$params{if}}
+        );
+    }
+
+    my $result = '';
+    if ($go_ahead)
+    {
+        # fill in the template with the leaf's data
+        $result = $self->{neat}->fill_in(
+            data_hash=>$leaf->{meta},
+            template=>$params{template},
+        );
+    }
 
     return $result;
 } # process
