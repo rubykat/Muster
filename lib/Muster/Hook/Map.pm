@@ -230,7 +230,11 @@ sub process {
             ? $tree
             : ($map_type eq 'nav'
                 ? "<nav>$tree</nav>\n"
-                : "<div class='map'>$tree</div>\n"));
+                : ($params{class}
+                    ? "<div class='$params{class}'>$tree</div>\n"
+                    : "<div class='map'>$tree</div>\n")
+            )
+        );
     } # else pmap
 
     if ($params{prepend})
