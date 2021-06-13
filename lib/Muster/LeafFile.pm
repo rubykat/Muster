@@ -22,7 +22,6 @@ File nodes represent files in a content tree.
 use Mojo::Base -base;
 
 use Carp;
-use Mojo::Util      'decode';
 use File::Basename 'basename';
 use File::stat;
 use POSIX qw(strftime);
@@ -179,12 +178,13 @@ sub build_name {
 =head2 is_this_a_binary
 
 If we don't know what it is, assume it is a binary file.
-Returns undef
+Returns undef if the file is NOT a binary file.
+This is so we can use "IS NULL" tests in SQL for it.
 
 =cut
 sub is_this_a_binary {
     my $self = shift;
-    return undef;
+    return 1;
 }
 
 =head2 build_pagename
@@ -249,7 +249,12 @@ sub build_raw {
     open my $fh, '<:encoding(UTF-8)', $fn or croak "couldn't open $fn: $!";
 
     # slurp
-    return do { local $/; <$fh> };
+    my $content = do { local $/; <$fh> };
+    # Test if it is really UTF-8
+    # See: https://www.perlmonks.org/?node_id=669902
+    utf8::decode($content)
+        or die "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
+    return $content;
 }
 
 =head2 build_meta
