@@ -114,37 +114,38 @@ sub process {
         $meta->{plural} = $leaf->name;
     }
 
-    # Classify the prose length for those pages that have wordcounts. Of course,
-    # this assumes that all of the words are in one page, which for long
-    # stories won't be the case. Hmmm.
-    if ($meta->{wordcount})
+    # Classify the prose length for for pages which have a "words" field;
+    # this assumes that this is a page which has information ABOUT
+    # some piece of prose, NOT that the page itself contains a piece of prose.
+    # For that, consult the "wordcount" field.
+    if ($meta->{words})
     {
         my $len = '';
-        if ($meta->{wordcount} == 100)
+        if ($meta->{words} == 100)
         {
             $len = 'Drabble';
-        } elsif ($meta->{wordcount} == 200)
+        } elsif ($meta->{words} == 200)
         {
             $len = 'Double-Drabble';
-        } elsif ($meta->{wordcount} >= 75000)
+        } elsif ($meta->{words} >= 75000)
         {
             $len = 'Long-Novel';
-        } elsif ($meta->{wordcount} >= 50000)
+        } elsif ($meta->{words} >= 50000)
         {
             $len = 'Novel';
-        } elsif ($meta->{wordcount} >= 25000)
+        } elsif ($meta->{words} >= 25000)
         {
             $len = 'Novella';
-        } elsif ($meta->{wordcount} >= 7500)
+        } elsif ($meta->{words} >= 7500)
         {
             $len = 'Novelette';
-        } elsif ($meta->{wordcount} >= 2000)
+        } elsif ($meta->{words} >= 2000)
         {
             $len = 'Short-Story';
-        } elsif ($meta->{wordcount} > 500)
+        } elsif ($meta->{words} > 500)
         {
             $len = 'Short-Short';
-        } elsif ($meta->{wordcount} <= 500)
+        } elsif ($meta->{words} <= 500)
         {
             $len = 'Flash';
         }
