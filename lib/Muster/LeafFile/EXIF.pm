@@ -150,12 +150,6 @@ sub build_raw {
     return "";
 }
 
-sub build_html {
-    my $self = shift;
-
-    return "";
-}
-
 1;
 
 __END__
