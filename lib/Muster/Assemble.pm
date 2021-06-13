@@ -237,6 +237,7 @@ sub _create_and_process_leaf {
     my $leaf = Muster::LeafFile->new(
         pagename=>$meta->{pagename},
         parent_page=>$meta->{parent_page},
+        grandparent_page=>$meta->{grandparent_page},
         filename=>$meta->{filename},
         filetype=>$meta->{filetype},
         is_page=>$meta->{is_page},
