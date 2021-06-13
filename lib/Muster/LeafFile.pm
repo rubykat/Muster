@@ -31,7 +31,7 @@ use Lingua::EN::Titlecase;
 
 has pagename    => '';
 has parent_page => '';
-has is_page     => sub { shift->is_this_a_page };
+has is_binary   => sub { shift->is_this_a_binary };
 has name        => sub { shift->build_name };
 has title       => sub { shift->build_title };
 has filename   => sub { croak 'no filename given' };
@@ -166,8 +166,8 @@ sub build_name {
     # get last filename part
     my $base = basename($self->filename);
 
-    # if this is a page as opposed to a non-page, delete the suffix
-    if ($self->is_page)
+    # if this is a page as opposed to a binary, delete the suffix
+    if (! $self->is_binary)
     {
         # delete suffix
         $base =~ s/\.\w+$//;
@@ -176,12 +176,13 @@ sub build_name {
     return $base;
 }
 
-=head2 is_this_a_page
+=head2 is_this_a_binary
 
-By default, it is not a page. Returns undef.
+If we don't know what it is, assume it is a binary file.
+Returns undef
 
 =cut
-sub is_this_a_page {
+sub is_this_a_binary {
     my $self = shift;
     return undef;
 }
@@ -290,7 +291,7 @@ sub build_meta {
         parent_page=>$self->parent_page,
         filename=>$self->filename,
         filetype=>$self->filetype,
-        is_page=>$self->is_page,
+        is_binary=>$self->is_binary,
         extension=>$self->extension,
         name=>$self->name,
         title=>$self->derive_title,

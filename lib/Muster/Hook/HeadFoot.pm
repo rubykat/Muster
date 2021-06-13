@@ -53,7 +53,7 @@ sub process {
     my $phase = $args{phase};
 
     # if this isn't a page, we can't include anything in it!
-    if (!$leaf->is_page)
+    if ($leaf->is_binary)
     {
         return $leaf;
     }
@@ -90,7 +90,7 @@ sub process {
                     parent_page=>$info->{parent_page},
                     filename=>$info->{filename},
                     filetype=>$info->{filetype},
-                    is_page=>$info->{is_page},
+                    is_binary=>$info->{is_binary},
                     extension=>$info->{extension},
                     name=>$info->{name},
                     title=>$info->{title},

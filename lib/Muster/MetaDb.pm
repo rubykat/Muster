@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title name date filetype is_page pagelink extension filename parent_page grandparent_page)];
+    $self->{primary_fields} = [qw(title name date filetype is_binary pagelink extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
@@ -328,7 +328,7 @@ sub allpagelinks {
         return undef;
     }
 
-    my $pagelinks = $self->_do_one_col_query("SELECT pagelink FROM pagefiles WHERE is_page IS NOT NULL AND NAME NOT GLOB '_*' ORDER BY page;");
+    my $pagelinks = $self->_do_one_col_query("SELECT pagelink FROM pagefiles WHERE is_binary IS NULL AND NAME NOT GLOB '_*' ORDER BY page;");
     return @{$pagelinks};
 } # allpagelinks
 
@@ -519,7 +519,7 @@ sub _prepare {
 
 Create the initial tables in the database:
 
-pagefiles: (page, title, name, filetype, is_page, filename, parent_page)
+pagefiles: (page, title, name, filetype, is_binary, filename, parent_page)
 links: (page, links_to)
 deepfields: (page, field, value)
 
@@ -1042,7 +1042,7 @@ sub _get_all_pagenames {
     my $self = shift;
 
     my $dbh = $self->{dbh};
-    my $pages = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE is_page IS NOT NULL ORDER BY page;");
+    my $pages = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE is_binary IS NULL ORDER BY page;");
 
     return @{$pages};
 } # _get_all_pagenames
@@ -1118,7 +1118,7 @@ sub _get_children_for_page {
 
     return unless $self->{dbh};
     my $dbh = $self->{dbh};
-    my $children = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE parent_page = '$pagename' AND is_page IS NOT NULL;");
+    my $children = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE parent_page = '$pagename' AND is_binary IS NULL;");
 
     return $children;
 } # _get_children_for_page
@@ -1137,7 +1137,7 @@ sub _get_attachments_for_page {
 
     return unless $self->{dbh};
     my $dbh = $self->{dbh};
-    my $attachments = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE parent_page = '$pagename' AND is_page IS NULL;");
+    my $attachments = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE parent_page = '$pagename' AND is_binary IS NOT NULL;");
 
     return $attachments;
 } # _get_attachments_for_page
@@ -1213,8 +1213,8 @@ sub _get_page_meta {
             }
         }
 
-        # non-pages don't have links, children, or attachments
-        if ($meta->{is_page})
+        # binary files don't have links, children, or attachments
+        if (!$meta->{is_binary})
         {
             # get multi-valued fields from other tables
             $meta->{children} = $self->_get_children_for_page($pagename);
@@ -1352,7 +1352,7 @@ sub _total_pages {
 
     my $dbh = $self->{dbh};
 
-    my $q = "SELECT COUNT(*) FROM pagefiles WHERE is_page IS NOT NULL;";
+    my $q = "SELECT COUNT(*) FROM pagefiles WHERE is_binary IS NULL;";
 
     my $sth = $self->_prepare($q);
     if (!$sth)
@@ -1446,7 +1446,7 @@ sub _pagelink {
         $link = $self->{route_prefix} . $link;
     }
     # if this is a page, it needs a slash added to it
-    if ($info->{is_page})
+    if (!$info->{is_binary})
     {
         $link .= '/';
     }

@@ -53,8 +53,7 @@ sub do_directives {
     my $directive = $args{directive};
     my $call = $args{call};
 
-    # do nothing if this is not a page
-    if (!$leaf->is_page)
+    if ($leaf->is_binary)
     {
         return $leaf;
     }

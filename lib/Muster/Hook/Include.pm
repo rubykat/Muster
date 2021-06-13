@@ -92,7 +92,7 @@ sub process {
                 parent_page=>$info->{parent_page},
                 filename=>$info->{filename},
                 filetype=>$info->{filetype},
-                is_page=>$info->{is_page},
+                is_binary=>$info->{is_binary},
                 extension=>$info->{extension},
                 name=>$info->{name},
                 title=>$info->{title},

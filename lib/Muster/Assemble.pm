@@ -78,7 +78,7 @@ sub serve_page {
         $c->reply->not_found;
         return;
     }
-    if (!$info->{is_page}) # a non-page
+    if ($info->{is_binary})
     {
         return $self->_serve_file($c, $info->{filename});
     }
@@ -165,7 +165,7 @@ sub serve_source {
         $c->reply->not_found;
         return;
     }
-    if (!$info->{is_page}) # a non-page
+    if ($info->{is_binary}) # a non-page
     {
         $c->reply->not_found;
         return;
@@ -240,7 +240,7 @@ sub _create_and_process_leaf {
         grandparent_page=>$meta->{grandparent_page},
         filename=>$meta->{filename},
         filetype=>$meta->{filetype},
-        is_page=>$meta->{is_page},
+        is_binary=>$meta->{is_binary},
         extension=>$meta->{extension},
         name=>$meta->{name},
         title=>$meta->{title},

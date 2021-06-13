@@ -22,15 +22,15 @@ use Hash::Merge;
 # use a fast YAML
 use YAML::XS;
 
-=head2 is_this_a_page
+=head2 is_this_a_binary
 
-Test if this type of file creates a page or is just a file.
+Test if this type of file which just contains binary data.
 
 =cut
-sub is_this_a_page {
+sub is_this_a_binary {
     my $self = shift;
 
-    return 1;
+    return undef;
 }
 
 =head2 build_meta
