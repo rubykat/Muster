@@ -122,7 +122,7 @@ sub process {
     }
     elsif (exists $params{where})
     {
-        my $pages = $self->{metadb}->query("SELECT page FROM pagefiles WHERE " . $params{where});
+        my $pages = $self->{metadb}->query("SELECT page FROM flatfields WHERE " . $params{where});
         @matching_pages = @{$pages} if $pages;
     }
     if (!scalar @matching_pages)

@@ -1,6 +1,6 @@
 package Muster::Hook::HeadFoot;
 
-use Mojo::Base 'Muster::Hook::Directives';
+use Mojo::Base 'Muster::Hook';
 use Muster::LeafFile;
 use Muster::Hooks;
 
@@ -17,8 +17,6 @@ Muster::Hook::HeadFoot - Muster header and footer hook.
 L<Muster::Hook::HeadFoot> includes header and footer pages inside pages.
 
 =head1 METHODS
-
-L<Muster::Hook::HeadFoot> inherits all methods from L<Muster::Hook::Directives>.
 
 =head2 register
 

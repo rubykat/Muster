@@ -273,6 +273,8 @@ sub pagespec_translate {
 =head2 query_pagespec
 
 Do a query using an IkiWiki-style pagespec.
+Always EXCLUDE pages starting with _ because they
+are special hidden pages.
 
     my $results = $self->query($spec);
 
@@ -287,7 +289,7 @@ sub query_pagespec {
         return undef;
     }
     my $where = $self->pagespec_translate($spec);
-    my $query = "SELECT page FROM flatfields WHERE ($where);";
+    my $query = "SELECT page FROM flatfields WHERE name NOT GLOB '_*' AND ($where);";
 
     return $self->_do_one_col_query($query);
 } # query_pagespec
