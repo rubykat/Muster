@@ -244,7 +244,22 @@ sub pagespec_translate {
         }
         elsif ($word =~ /^(\w+)\((.*)\)$/)
         {
-            # can't deal with functions, skip it
+            my $func = $1;
+            my $func_args_str = $2;
+
+            # field_item(column value)
+            if ($func eq 'field_item')
+            {
+                my @func_args = split(' ', $func_args_str);
+                $sql .= sprintf(" %s = '%s' ",
+                    $func_args[0], $func_args[1]);
+            }
+            # where(condition)
+            elsif ($func eq 'where' and $func_args_str)
+            {
+                # put parens around it just in case
+                $sql.=' ( '.$func_args_str.' ) ';
+            }
         }
         else
         {
@@ -272,14 +287,14 @@ sub query_pagespec {
         return undef;
     }
     my $where = $self->pagespec_translate($spec);
-    my $query = "SELECT page FROM pagefiles WHERE ($where);";
+    my $query = "SELECT page FROM flatfields WHERE ($where);";
 
     return $self->_do_one_col_query($query);
 } # query_pagespec
 
 =head2 pagelist
 
-Query the database, return a list of pages
+Query the database, return a list of all pages
 
 =cut
 
