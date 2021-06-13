@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title name date filetype is_page pagelink extension filename parent_page)];
+    $self->{primary_fields} = [qw(title name date filetype is_page pagelink extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
