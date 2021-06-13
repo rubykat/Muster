@@ -40,7 +40,7 @@ sub init {
     if (!defined $self->{metadb_db})
     {
         # give a default name
-        $self->{metadb_db} = 'muster.sqlite';
+        $self->{metadb_db} = 'muster.db3';
     }
     if (!defined $self->{route_prefix})
     {
