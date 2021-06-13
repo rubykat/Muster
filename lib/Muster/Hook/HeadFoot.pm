@@ -147,6 +147,15 @@ sub _find_affix_page {
         return $local_sp;
     }
 
+    # Next priority is a grand-local page.
+    # This is in the directory *above* this page (grandparent)
+    # and has two extra '_' at the front of it.
+    my $grandlocal_sp = $cp_info->{grandparent_page} . '/__' . $affix_page;
+    if ($self->{metadb}->page_exists($grandlocal_sp))
+    {
+        return $grandlocal_sp;
+    }
+
     my @bits = split('/', $current_page);
     my $found_page = '';
     do {
