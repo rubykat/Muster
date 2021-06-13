@@ -273,6 +273,16 @@ sub build_meta {
     my $st = stat($self->filename);
     my $date = strftime('%Y-%m-%d %H:%M', localtime($st->mtime));
 
+    my $grandparent_page = '';
+    if ($self->pagename =~ m{^(.*)/[-\.\w]+/[-\.\w]+$}o)
+    {
+        $grandparent_page = $1;
+    }
+    else # top-level page
+    {
+        $grandparent_page = '';
+    }
+
     # There is always the default information
     # of pagename, filename etc.
     my $meta = {
@@ -285,6 +295,7 @@ sub build_meta {
         name=>$self->name,
         title=>$self->derive_title,
         date=>$date,
+        grandparent_page=>$grandparent_page,
     };
 
     return $meta;

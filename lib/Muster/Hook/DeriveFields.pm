@@ -92,16 +92,6 @@ sub process {
         $meta->{$section} = $bits[$i];
     }
 
-    # grandparent_page
-    if ($leaf->pagename =~ m{^(.*)/[-\.\w]+/[-\.\w]+$}o)
-    {
-        $meta->{grandparent_page} = $1;
-    }
-    else # top-level page
-    {
-        $meta->{grandparent_page} = '';
-    }
-
     # the first Alpha of the name; good for headers in reports
     $meta->{name_a} = uc(substr($leaf->name, 0, 1));
 
