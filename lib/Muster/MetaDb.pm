@@ -508,7 +508,7 @@ sub _prepare {
         $sth = $self->{dbh}->prepare($q);
         if (!$sth)
         {
-            croak "FAILED to prepare '$q' $DBI::errstr";
+            confess "FAILED to prepare '$q' $DBI::errstr";
         }
         $self->{prepared}->{$q} = $sth;
     }
