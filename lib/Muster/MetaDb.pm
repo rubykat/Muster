@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title name date filetype is_binary pagelink extension filename parent_page grandparent_page)];
+    $self->{primary_fields} = [qw(title name date filetype is_binary pagelink pagesrcname extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
@@ -519,7 +519,7 @@ sub _prepare {
 
 Create the initial tables in the database:
 
-pagefiles: (page, title, name, filetype, is_binary, filename, parent_page)
+pagefiles: (page, title, name, filetype, is_binary, filename, parent_page...)
 links: (page, links_to)
 deepfields: (page, field, value)
 
