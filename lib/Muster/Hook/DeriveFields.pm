@@ -19,6 +19,7 @@ use Mojo::Base 'Muster::Hook';
 use Muster::Hooks;
 use Muster::LeafFile;
 use Lingua::EN::Inflexion;
+use DateTime;
 use YAML::Any;
 use Carp;
 
@@ -151,6 +152,24 @@ sub process {
         }
         $meta->{story_length} = $len;
     }
+
+    # datetime for various dates
+    # Look for existing fields which end with _date
+    foreach my $fn (keys %{$meta})
+    {
+        if ($fn =~ /_date$/
+                and defined $meta->{$fn}
+                and $meta->{$fn} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/)
+        {
+            my $year = $1;
+            my $month = $2;
+            my $day = $3;
+            my $dt = DateTime->new(year=>$year,month=>$month,day=>$day);
+            my $dt_fn = ${fn}.'time';
+            $meta->{$dt_fn} = $dt->epoch();
+        }
+    }
+
     $leaf->{meta} = $meta;
 
     return $leaf;
