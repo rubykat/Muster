@@ -162,7 +162,7 @@ sub _find_affix_page {
     my $found_page = '';
     do {
         my $cwd = join('/', @bits);
-        my $q = "SELECT page FROM pagefiles WHERE name = '$affix_page' AND parent_page IN (SELECT parent_page FROM pagefiles WHERE page = '$cwd');";
+        my $q = "SELECT page FROM pagefiles WHERE bald_name = '$affix_page' AND parent_page IN (SELECT parent_page FROM pagefiles WHERE page = '$cwd');";
         my $pages = $self->{metadb}->query($q);
         if ($pages)
         {
