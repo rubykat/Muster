@@ -76,7 +76,6 @@ sub process {
     }
 
     my $content = $leaf->cooked();
-    my $page = $leaf->pagename;
 
     # substitute {{!var}} variables
     $content =~ s/(\\?)\{\{\!([-\w]+)\}\}/$self->get_dynamic_value($1,$2,$leaf)/eg;

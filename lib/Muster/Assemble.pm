@@ -59,8 +59,8 @@ sub serve_page {
 
     $self->init($c);
 
-    # If this is a page, there ought to be a trailing slash in the cpath.
-    # If there isn't, either this isn't canonical, or it isn't a page.
+    # If a page is requested, there ought to be a trailing slash in the cpath.
+    # If there isn't, either this isn't canonical, or it isn't a page request.
     # However, pagenames don't have a trailing slash.
     # Yes, this is confusing.
     my $pagename = $c->param('cpath') // 'index';
@@ -78,6 +78,7 @@ sub serve_page {
         $c->reply->not_found;
         return;
     }
+
     if ($info->{is_binary})
     {
         return $self->_serve_file($c, $info->{filename});
@@ -236,13 +237,15 @@ sub _create_and_process_leaf {
 
     my $leaf = Muster::LeafFile->new(
         pagename=>$meta->{pagename},
+        pagesrcname=>$meta->{pagesrcname},
         parent_page=>$meta->{parent_page},
         grandparent_page=>$meta->{grandparent_page},
         filename=>$meta->{filename},
         filetype=>$meta->{filetype},
         is_binary=>$meta->{is_binary},
         extension=>$meta->{extension},
-        name=>$meta->{name},
+        bald_name=>$meta->{bald_name},
+        hairy_name=>$meta->{hairy_name},
         title=>$meta->{title},
         date=>$meta->{date},
         meta=>$meta,

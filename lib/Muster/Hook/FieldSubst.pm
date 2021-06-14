@@ -118,6 +118,10 @@ sub get_field_value {
     {
         $value = $leaf->pagename;
     }
+    elsif ($varname eq 'pagesrc')
+    {
+        $value = $leaf->pagesrcname;
+    }
     elsif (exists $leaf->{meta}->{$varname})
     {
         $value = $leaf->{meta}->{$varname};

@@ -29,14 +29,17 @@ use YAML::Any;
 use Lingua::EN::Titlecase;
 
 has pagename    => '';
+has pagesrcname    => '';
 has parent_page => '';
 has is_binary   => sub { shift->is_this_a_binary };
-has name        => sub { shift->build_name };
+has bald_name    => sub { shift->build_bald_name };
+has hairy_name    => sub { shift->build_hairy_name };
 has title       => sub { shift->build_title };
 has filename   => sub { croak 'no filename given' };
 has filetype   => sub { shift->build_filetype };
 has extension  => sub { shift->build_ext };
 has pagename   => sub { shift->build_pagename };
+has pagesrcname   => sub { shift->build_pagesrcname };
 
 =head2 raw
 
@@ -124,7 +127,7 @@ sub build_title {
     # try to extract title
     return $self->meta->{title} if exists $self->{meta} and exists $self->meta->{title};
     return $1 if defined $self->html and $self->html =~ m|<h1>(.*?)</h1>|i;
-    return $self->name;
+    return $self->bald_name;
 }
 
 =head2 reclassify
@@ -154,26 +157,38 @@ sub reclassify {
     return $self;
 }
 
-=head2 build_name
+=head2 build_bald_name
 
-Build the base name of the related page.
+Build the base name of the related page with no suffix.
+It is "bald" because the suffix has been chopped off.
 
 =cut
-sub build_name {
+sub build_bald_name {
     my $self = shift;
 
     # get last filename part
     my $base = basename($self->filename);
 
-    # if this is a page as opposed to a binary, delete the suffix
-    if (! $self->is_binary)
-    {
-        # delete suffix
-        $base =~ s/\.\w+$//;
-    }
+    # delete the suffix
+    $base =~ s/\.\w+$//;
 
     return $base;
-}
+} # build_bald_name
+
+=head2 build_hairy_name
+
+Build the base name of the related page, including the suffix.
+It is "hairy" because the suffix has not been chopped off.
+
+=cut
+sub build_hairy_name {
+    my $self = shift;
+
+    # get last filename part
+    my $base = basename($self->filename);
+
+    return $base;
+} # build_hairy_name
 
 =head2 is_this_a_binary
 
@@ -196,7 +211,19 @@ sub build_pagename {
     my $self = shift;
 
     # build from parent_page, infix slash and name
-    return join '/' => grep {$_ ne ''} $self->parent_page, $self->name;
+    return join '/' => grep {$_ ne ''} $self->parent_page, $self->bald_name;
+}
+
+=head2 build_pagesrcname
+
+Create the pagesrcname from the filename.
+
+=cut
+sub build_pagesrcname {
+    my $self = shift;
+
+    # build from parent_page, infix slash and hairy name
+    return join '/' => grep {$_ ne ''} $self->parent_page, $self->hairy_name;
 }
 
 =head2 build_filetype
@@ -293,12 +320,14 @@ sub build_meta {
     # of pagename, filename etc.
     my $meta = {
         pagename=>$self->pagename,
+        pagesrcname=>$self->pagesrcname,
         parent_page=>$self->parent_page,
         filename=>$self->filename,
         filetype=>$self->filetype,
         is_binary=>$self->is_binary,
         extension=>$self->extension,
-        name=>$self->name,
+        bald_name=>$self->bald_name,
+        hairy_name=>$self->hairy_name,
         title=>$self->derive_title,
         date=>$date,
         grandparent_page=>$grandparent_page,
@@ -316,7 +345,7 @@ sub derive_title {
     my $self = shift;
 
     # get the title from the name of the file
-    my $name = $self->name;
+    my $name = $self->bald_name;
     $name =~ s/[_-]/ /g;
     my $tc = Lingua::EN::Titlecase->new($name);
     return $tc->title();

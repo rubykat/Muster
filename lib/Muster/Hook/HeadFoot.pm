@@ -87,12 +87,14 @@ sub process {
             {
                 my $new_leaf = Muster::LeafFile->new(
                     pagename=>$info->{pagename},
+                    pagesrcname=>$info->{pagesrcname},
                     parent_page=>$info->{parent_page},
                     filename=>$info->{filename},
                     filetype=>$info->{filetype},
                     is_binary=>$info->{is_binary},
                     extension=>$info->{extension},
-                    name=>$info->{name},
+                    bald_name=>$info->{bald_name},
+                    hairy_name=>$info->{hairy_name},
                     title=>$info->{title},
                     date=>$info->{date},
                     meta=>$info,

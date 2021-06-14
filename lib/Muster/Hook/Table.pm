@@ -68,7 +68,6 @@ sub process {
         header => 'row',
         @p
     );
-    my $pagename = $leaf->pagename;
 
     # code from IkiWiki
     if (lc $params{format} eq 'auto')

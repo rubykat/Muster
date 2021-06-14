@@ -75,7 +75,7 @@ sub process {
 
     # split the page-name on '-'
     # useful for project-types
-    my @bits = split('-', $leaf->name);
+    my @bits = split('-', $leaf->bald_name);
     for (my $i=0; $i < scalar @bits; $i++)
     {
         my $p1 = sprintf('p%d', $i + 1); # page-bits start from 1 not 0
@@ -93,25 +93,25 @@ sub process {
     }
 
     # the first Alpha of the name; good for headers in reports
-    $meta->{name_a} = uc(substr($leaf->name, 0, 1));
+    $meta->{name_a} = uc(substr($leaf->bald_name, 0, 1));
 
     # plural and singular 
     # assuming that the page-name is a noun...
-    my $noun = noun($leaf->name);
+    my $noun = noun($leaf->bald_name);
     if ($noun->is_plural())
     {
         $meta->{singular} = $noun->singular();
-        $meta->{plural} = $leaf->name;
+        $meta->{plural} = $leaf->bald_name;
     }
     elsif ($noun->is_singular())
     {
-        $meta->{singular} = $leaf->name;
+        $meta->{singular} = $leaf->bald_name;
         $meta->{plural} = $noun->plural();
     }
     else # neither
     {
-        $meta->{singular} = $leaf->name;
-        $meta->{plural} = $leaf->name;
+        $meta->{singular} = $leaf->bald_name;
+        $meta->{plural} = $leaf->bald_name;
     }
 
     # Classify the prose length for for pages which have a "words" field;

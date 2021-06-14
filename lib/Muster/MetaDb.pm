@@ -1195,8 +1195,8 @@ sub _get_page_meta {
         return undef;
     }
     # Note that there are three different kinds of files we have data on:
-    # files: just the basic info in the pagefiles table
-    # files-with-filetypes: which have additional meta-data (for example, image file meta-data)
+    # binary files: just the basic info in the pagefiles table
+    # binary-files-with-filetypes: which have additional meta-data (for example, image file meta-data)
     # pages: which have additional meta-data, and also children, attachments, and links
     if ($meta->{filetype})
     {
