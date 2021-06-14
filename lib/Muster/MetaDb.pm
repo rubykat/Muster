@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title name date filetype is_binary pagelink pagesrcname extension filename parent_page grandparent_page)];
+    $self->{primary_fields} = [qw(title bald_name hairy_name date filetype is_binary pagelink pagesrcname extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
@@ -289,7 +289,7 @@ sub query_pagespec {
         return undef;
     }
     my $where = $self->pagespec_translate($spec);
-    my $query = "SELECT page FROM flatfields WHERE name NOT GLOB '_*' AND ($where);";
+    my $query = "SELECT page FROM flatfields WHERE bald_name NOT GLOB '_*' AND ($where);";
 
     return $self->_do_one_col_query($query);
 } # query_pagespec
@@ -328,7 +328,7 @@ sub allpagelinks {
         return undef;
     }
 
-    my $pagelinks = $self->_do_one_col_query("SELECT pagelink FROM pagefiles WHERE is_binary IS NULL AND NAME NOT GLOB '_*' ORDER BY page;");
+    my $pagelinks = $self->_do_one_col_query("SELECT pagelink FROM pagefiles WHERE is_binary IS NULL AND bald_name NOT GLOB '_*' ORDER BY page;");
     return @{$pagelinks};
 } # allpagelinks
 
