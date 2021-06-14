@@ -253,7 +253,7 @@ sub build_raw {
     # Test if it is really UTF-8
     # See: https://www.perlmonks.org/?node_id=669902
     utf8::decode($content)
-        or croak "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
+        or carp "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
     return $content;
 }
 
