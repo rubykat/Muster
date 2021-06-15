@@ -299,7 +299,7 @@ sub process {
     my $link;
     if (! defined $params{link})
     {
-        $link = $img_info->{pagelink};
+        $link = $img_info->{pagesrclink};
     }
     elsif ($params{link} =~ /^\w+:\/\//)
     {
