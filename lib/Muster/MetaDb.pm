@@ -1141,7 +1141,7 @@ sub _get_attachments_for_page {
 
     return unless $self->{dbh};
     my $dbh = $self->{dbh};
-    my $attachments = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE parent_page = '$pagename' AND is_binary IS NOT NULL;");
+    my $attachments = $self->_do_one_col_query("SELECT pagesrcname FROM pagefiles WHERE parent_page = '$pagename' AND is_binary IS NOT NULL;");
 
     return $attachments;
 } # _get_attachments_for_page
