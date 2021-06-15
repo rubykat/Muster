@@ -131,13 +131,15 @@ sub _rightbar {
 
     my $pagename = $c->param('cpath');
     $pagename =~ s!/$!!; # remove trailing slash
+    my $info = $self->{metadb}->page_or_file_info($pagename);
 
-    my $src_dest_url = $c->url_for("/_src/$pagename/");
+    #my $src_dest_url = $c->url_for("/_src/$pagename/");
+    my $src_dest_url = $c->url_for($info->{pagesrclink});
     my $src_dest_label = 'Source';
     my $current_url = $c->req->url->to_abs;
-    if ($current_url =~ /_src/) # we're already looking at Source
+    if ($current_url =~ /\.\w+$/) # we're already looking at Source
     {
-        $src_dest_url =~ s/_src\///;
+        $src_dest_url =~ s/\.\w+$/\//;
         $src_dest_label = "Dest";
     }
     my $meta_dest_url = $c->url_for("/_meta/$pagename/");
