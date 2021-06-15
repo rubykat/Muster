@@ -134,7 +134,7 @@ sub _rightbar {
     my $info = $self->{metadb}->page_or_file_info($pagename);
 
     #my $src_dest_url = $c->url_for("/_src/$pagename/");
-    my $src_dest_url = $c->url_for($info->{pagesrclink});
+    my $src_dest_url = $c->url_for($info->{pagesrcname});
     my $src_dest_label = 'Source';
     my $current_url = $c->req->url->to_abs;
     if ($current_url =~ /\.\w+$/) # we're already looking at Source
