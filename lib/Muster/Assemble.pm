@@ -144,59 +144,6 @@ sub serve_meta {
     $c->render(template => 'page');
 }
 
-=head2 serve_source
-
-Serve the source-content for a page (for debugging purposes)
-Only works for page-files. (We don't want to be sending a binary file!)
-
-=cut
-sub serve_source {
-    my $self = shift;
-    my $c = shift;
-    my $app = $c->app;
-
-    $self->init($c);
-
-    # If this is a page, there ought to be a trailing slash in the cpath.
-    # If there isn't, either this isn't canonical, or it isn't a page.
-    # However, pagenames don't have a trailing slash.
-    # Yes, this is confusing.
-    my $pagename = $c->param('cpath') // 'index';
-    my $has_trailing_slash = 0;
-    if ($pagename =~ m!/$!)
-    {
-        $has_trailing_slash = 1;
-        $pagename =~ s!/$!!;
-    }
-
-    # now we need to find if this page exists, and what type it is
-    my $info = $self->{metadb}->page_or_file_info($pagename);
-    unless (defined $info and defined $info->{filename} and -f -r $info->{filename})
-    {
-        $c->reply->not_found;
-        return;
-    }
-    if ($info->{is_binary}) # a non-page
-    {
-        $c->reply->not_found;
-        return;
-    }
-
-    my $leaf = $self->_create_and_process_leaf(controller=>$c,meta=>$info);
-
-    my $content = $leaf->raw();
-    unless (defined $content)
-    {
-        $c->reply->not_found;
-        return;
-    }
-
-    $c->stash('title' => $leaf->title);
-    $c->stash('pagename' => $pagename);
-    $c->stash('content' => "<pre>$content</pre>");
-    $c->render(template => 'page');
-} # serve_source
-
 =head1 Helper Functions
 
 =head2 _serve_file

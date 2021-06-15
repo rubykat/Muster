@@ -143,10 +143,6 @@ sub startup {
         my $c  = shift;
         $self->{assemble}->serve_meta($c);
     };
-    my $do_source = sub {
-        my $c  = shift;
-        $self->{assemble}->serve_source($c);
-    };
     my $do_debug = sub {
         my $c  = shift;
 
@@ -160,7 +156,6 @@ sub startup {
     $r->get('/_debug' => $do_debug);
     $r->get('/_debug/*cpath' => $do_debug);
     $r->get('/_meta/*cpath' => $do_meta);
-    $r->get('/_src/*cpath' => $do_source);
     # anything else should be a page or file
     $r->get('/*cpath' => $do_page);
 }
