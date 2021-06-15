@@ -100,7 +100,7 @@ sub build_meta {
             $date = $info->{$field};
             # often the formatting can be different
             # Change YYYY:MM:DD to YYYY-MM-DD
-            $date =~ s/^(d+):(d+):(d+)/$1-$2-$3/;
+            $date =~ s/^(\d+):(\d+):(\d+)/$1-$2-$3/;
         }
     }
     $meta->{date} = $date if $date;
