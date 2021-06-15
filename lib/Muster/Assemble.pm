@@ -65,10 +65,16 @@ sub serve_page {
     # Yes, this is confusing.
     my $pagename = $c->param('cpath') // 'index';
     my $has_trailing_slash = 0;
+    my $is_source_file_request = 0;
     if ($pagename =~ m!/$!)
     {
         $has_trailing_slash = 1;
         $pagename =~ s!/$!!;
+    }
+    elsif ($pagename =~ m!(.*)\.\w+$!) # source-file or file requests have .ext suffixes
+    {
+        $pagename = $1;
+        $is_source_file_request = 1;
     }
 
     # now we need to find if this page exists, and what type it is
@@ -79,7 +85,11 @@ sub serve_page {
         return;
     }
 
-    if ($info->{is_binary})
+    if ($is_source_file_request)
+    {
+        return $self->_serve_file($c, $info->{filename});
+    }
+    elsif ($info->{is_binary})
     {
         return $self->_serve_file($c, $info->{filename});
     }
