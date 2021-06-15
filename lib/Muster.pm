@@ -139,6 +139,21 @@ sub startup {
         my $c  = shift;
         $self->{assemble}->serve_page($c);
     };
+    my $do_param_page = sub {
+        my $c  = shift;
+
+        # get path-info style parameters and add them to $c->param()
+        my $ppath = $c->param('ppath');
+        my @ppath = split('/', $ppath);
+        while (@ppath)
+        {
+            my $field = shift @ppath;
+            my $value = shift @ppath;
+            $c->param($field => $value);
+        }
+
+        $self->{assemble}->serve_page($c);
+    };
     my $do_meta = sub {
         my $c  = shift;
         $self->{assemble}->serve_meta($c);
@@ -156,6 +171,7 @@ sub startup {
     $r->get('/_debug' => $do_debug);
     $r->get('/_debug/*cpath' => $do_debug);
     $r->get('/_meta/*cpath' => $do_meta);
+    $r->get('/*cpath/_p/*ppath' => $do_param_page);
     # anything else should be a page or file
     $r->get('/*cpath' => $do_page);
 }
