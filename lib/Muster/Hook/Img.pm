@@ -169,7 +169,7 @@ sub process {
     close($in);
 
     # give it a long flat name
-    my $thumb_base = $imgpage;
+    my $thumb_base = $img_info->{pagesrcname};
     $thumb_base =~ s!/!-!g;
     my $imglink;
     my ($dwidth, $dheight);
