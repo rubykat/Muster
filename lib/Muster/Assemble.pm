@@ -87,11 +87,11 @@ sub serve_page {
 
     if ($is_source_file_request)
     {
-        return $self->_serve_file($c, $info->{filename});
+        return $self->_serve_file(controller=>$c, meta=>$info);
     }
     elsif ($info->{is_binary})
     {
-        return $self->_serve_file($c, $info->{filename});
+        return $self->_serve_file(controller=>$c, meta=>$info);
     }
     elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
     {
@@ -203,31 +203,42 @@ sub serve_source {
 
 Serve a file rather than a page.
     
-    $self->_serve_file($filename);
+    $self->_serve_file(controller=>$c, meta=>$meta);
 
 =cut
 
 sub _serve_file {
     my $self = shift;
-    my $c = shift;
-    my $filename = shift;
+    my %args = @_;
+    my $c = $args{controller};
+    my $meta = $args{meta};
 
+    my $filename = $meta->{filename};
     if (!-f $filename)
     {
         # not found
         return;
     }
-    # extenstion is format (exclude the dot)
+    # if this is binary, the format is the extension (exclude the dot)
     my $ext = '';
     if ($filename =~ /\.(\w+)$/)
     {
         $ext = $1;
     }
+    my $format = '';
+    if ($meta->{is_binary})
+    {
+        $format = $ext;
+    }
+    else
+    {
+        $format = 'txt';
+    }
     # read the image
     my $bytes = read_binary($filename);
 
     # now display the logo
-    $c->render(data => $bytes, format => $ext);
+    $c->render(data => $bytes, format => $format);
 } # _serve_file
 
 =head2 _create_and_process_leaf
