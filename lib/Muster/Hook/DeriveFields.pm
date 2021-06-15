@@ -180,6 +180,12 @@ sub process {
     {
         $meta->{date} = $meta->{creation_date};
     }
+    elsif (exists $meta->{date_added}
+            and defined $meta->{date_added}
+            and $meta->{date_added} =~ /^\d\d\d\d-\d\d-\d\d/)
+    {
+        $meta->{date} = $meta->{creation_date};
+    }
     elsif (exists $meta->{fetch_date}
             and defined $meta->{fetch_date}
             and $meta->{fetch_date} =~ /^\d\d\d\d-\d\d-\d\d/)
@@ -189,11 +195,13 @@ sub process {
 
     # Derived date-related info using DateTime
     # Look for existing fields which end with _date
-    foreach my $fn (keys %{$meta})
+    foreach my $field (keys %{$meta})
     {
-        if (($fn =~ /_date$/ or $fn eq 'date')
-                and defined $meta->{$fn}
-                and $meta->{$fn} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/)
+        if (($field =~ /_date$/ 
+                    or $field =~ /^date_/
+                    or $field eq 'date')
+                and defined $meta->{$field}
+                and $meta->{$field} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/)
         {
             my $year = $1;
             my $month = $2;
@@ -201,17 +209,22 @@ sub process {
             my $hour = 0;
             my $min = 0;
             # The date MAY have time info in it too
-            if ($meta->{$fn} =~ /^\d\d\d\d-\d\d-\d\d (\d+):(\d\d)/)
+            if ($meta->{$field} =~ /^\d\d\d\d-\d\d-\d\d (\d+):(\d\d)/)
             {
                 $hour = $1;
                 $min = $2;
             }
             my $dt = DateTime->new(year=>$year,month=>$month,day=>$day,
                 hour=>$hour,minute=>$min);
-            $meta->{"${fn}time"} = $dt->epoch();
-            $meta->{"${fn}_year"} = $dt->year();
-            $meta->{"${fn}_month"} = $dt->month();
-            $meta->{"${fn}_monthname"} = $dt->month_name();
+            my $new_fn = $field;
+            $new_fn =~ s/date/datetime/;
+            $meta->{$new_fn} = $dt->epoch();
+            $new_fn = $field; $new_fn =~ s/date/date_year/;
+            $meta->{$new_fn} = $dt->year();
+            $new_fn = $field; $new_fn =~ s/date/date_month/;
+            $meta->{$new_fn} = $dt->month();
+            $new_fn = $field; $new_fn =~ s/date/date_monthname/;
+            $meta->{$new_fn} = $dt->month_name();
         }
     }
 
