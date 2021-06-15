@@ -411,6 +411,10 @@ sub bestlink {
     }
     $link=~s/\/$//;
 
+    # If the given link ends with .ext suffix
+    # the related page will be the thing without the suffix
+    $link =~ s/\.\w+$//;
+
     do {
         my $l=$cwd;
         $l.="/" if length $l;
