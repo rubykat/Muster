@@ -190,7 +190,7 @@ sub process {
         # only a width or only a height is specified.
         # When both are specified, aspect ratio will not be
         # preserved.
-        $imglink = $imgpage;
+        $imglink = $img_info->{pagesrcname};
         $dwidth = $w if length $w;
         $dheight = $h if length $h;
     }
@@ -266,7 +266,7 @@ sub process {
         }
         else
         {
-            $imglink = $imgpage;
+            $imglink = $img_info->{pagesrcname};
         }
 
         if (! defined($dwidth) || ! defined($dheight))
