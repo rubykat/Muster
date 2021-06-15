@@ -136,6 +136,7 @@ sub _rightbar {
     my $src_file_url = $info->{pagesrclink};
     my $src_file_label = 'Source';
 
+    my $current_url = $c->req->url->to_abs;
     my $meta_dest_url = $c->url_for("/_meta/$pagename/");
     my $meta_dest_label = 'Meta';
     if ($current_url =~ /_meta/) # we're already looking at Meta
