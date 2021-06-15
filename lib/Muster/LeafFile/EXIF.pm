@@ -101,6 +101,7 @@ sub build_meta {
         }
     }
     $meta->{date} = $date if $date;
+    $meta->{creation_date} = $date if $date;
 
     # Use a consistent naming for tag fields.
     # Combine the tag-like fields together.
@@ -125,12 +126,10 @@ sub build_meta {
     # There are SOOOOOO many fields in EXIF data, just remember a subset of them
     foreach my $field (qw(
 FileSize
-Flash
 ImageHeight
 ImageSize
 ImageWidth
 Megapixels
-PageCount
 Location
 Title
 ))

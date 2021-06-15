@@ -302,6 +302,7 @@ sub build_meta {
     # file permissions have been changed without changing the content.  A file
     # may store its creation-date in its meta-data, but that will depend on the
     # filetype of that particular file, so we can't deal with it here.
+    # Therefore the most relevant file "date" comes from the mtime.
 
     my $st = stat($self->filename);
     my $date = strftime('%Y-%m-%d %H:%M', localtime($st->mtime));
@@ -330,6 +331,7 @@ sub build_meta {
         hairy_name=>$self->hairy_name,
         title=>$self->derive_title,
         date=>$date,
+        mtime=>$st->mtime,
         grandparent_page=>$grandparent_page,
     };
 

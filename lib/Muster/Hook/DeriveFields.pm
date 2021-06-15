@@ -20,6 +20,7 @@ use Muster::Hooks;
 use Muster::LeafFile;
 use Lingua::EN::Inflexion;
 use DateTime;
+use POSIX qw(strftime);
 use YAML::Any;
 use Carp;
 
@@ -96,6 +97,13 @@ sub process {
     # the first Alpha of the name; good for headers in reports
     $meta->{name_a} = uc(substr($leaf->bald_name, 0, 1));
 
+    # name-spaced
+    my $namespaced = $leaf->bald_name;
+    $namespaced =~ s#_# #g;
+    $namespaced =~ s#-# #g;
+    $namespaced =~ s/([-\w]+)/\u\L$1/g;
+    $meta->{namespaced} = $namespaced;
+
     # plural and singular 
     # assuming that the page-name is a noun...
     my $noun = noun($leaf->bald_name);
@@ -153,20 +161,57 @@ sub process {
         $meta->{story_length} = $len;
     }
 
-    # datetime for various dates
+    # ============================================
+    # DATE stuff
+    # ============================================
+
+    # Some date adjustments.
+    # Files may have creation-date information in them;
+    # use that for the "date" of the page
+    if (exists $meta->{timestamp}
+            and defined $meta->{timestamp}
+            and $meta->{timestamp} != $meta->{mtime})
+    {
+        $meta->{date} = strftime('%Y-%m-%d %H:%M', localtime($meta->{timestamp}));
+    }
+    elsif (exists $meta->{creation_date}
+            and defined $meta->{creation_date}
+            and $meta->{creation_date} =~ /^\d\d\d\d-\d\d-\d\d/)
+    {
+        $meta->{date} = $meta->{creation_date};
+    }
+    elsif (exists $meta->{fetch_date}
+            and defined $meta->{fetch_date}
+            and $meta->{fetch_date} =~ /^\d\d\d\d-\d\d-\d\d/)
+    {
+        $meta->{date} = $meta->{fetch_date};
+    }
+
+    # Derived date-related info using DateTime
     # Look for existing fields which end with _date
     foreach my $fn (keys %{$meta})
     {
-        if ($fn =~ /_date$/
+        if (($fn =~ /_date$/ or $fn eq 'date')
                 and defined $meta->{$fn}
                 and $meta->{$fn} =~ /^(\d\d\d\d)-(\d\d)-(\d\d)/)
         {
             my $year = $1;
             my $month = $2;
             my $day = $3;
-            my $dt = DateTime->new(year=>$year,month=>$month,day=>$day);
-            my $dt_fn = ${fn}.'time';
-            $meta->{$dt_fn} = $dt->epoch();
+            my $hour = 0;
+            my $min = 0;
+            # The date MAY have time info in it too
+            if ($meta->{$fn} =~ /^\d\d\d\d-\d\d-\d\d (\d+):(\d\d)/)
+            {
+                $hour = $1;
+                $min = $2;
+            }
+            my $dt = DateTime->new(year=>$year,month=>$month,day=>$day,
+                hour=>$hour,minute=>$min);
+            $meta->{"${fn}time"} = $dt->epoch();
+            $meta->{"${fn}_year"} = $dt->year();
+            $meta->{"${fn}_month"} = $dt->month();
+            $meta->{"${fn}_monthname"} = $dt->month_name();
         }
     }
 
