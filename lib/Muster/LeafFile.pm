@@ -373,16 +373,12 @@ sub build_html {
     my $self = shift;
     
     my $me = $self->pagename();
-    my $content = $self->cooked();
     my $title = $self->derive_title();
     return <<EOT;
 <h1>$title</h1>
 <p>
 $me
 </p>
-<pre>
-$content
-</pre>
 EOT
 
 }

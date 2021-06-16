@@ -16,6 +16,7 @@ use Mojo::Base 'Muster::LeafFile';
 
 use Carp;
 use Image::ExifTool qw(:Public);
+use Text::Markdown::Discount 'markdown';
 
 sub is_this_a_binary {
     my $self = shift;
@@ -158,6 +159,54 @@ sub build_raw {
     my $self = shift;
 
     return "";
+}
+
+=head2 build_html
+
+Create the HTML for this binary-file page.
+
+=cut
+sub build_html {
+    my $self = shift;
+    
+    my $content = $self->cooked();
+    # if the output is going to be text, don't process it
+    if (defined $self->meta->{render_format}
+            and $self->meta->{render_format} eq 'txt')
+    {
+        return $content;
+    }
+    elsif (defined $self->meta->{html_from})
+    {
+        # This probably needs to be done more generically
+        # by using modules' own methods,
+        # but this will do for now.
+        if ($self->meta->{html_from} eq 'html')
+        {
+            # HTML doesn't need processing
+            return $content;
+        }
+        elsif ($self->meta->{html_from} eq 'txt')
+        {
+    return <<EOT;
+<pre>
+$content
+</pre>
+EOT
+        }
+        elsif ($self->meta->{html_from} eq 'mdwn')
+        {
+            return markdown($content);
+        }
+        else # Don't know what this is, don't process
+        {
+            return $content;
+        }
+    }
+    else
+    {
+        return $content;
+    }
 }
 
 1;
