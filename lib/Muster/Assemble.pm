@@ -111,7 +111,7 @@ sub serve_page {
     $c->stash('pagename' => $pagename);
     $c->stash('content' => $html);
     $c->render(template => 'page',
-        format => ($info->{page_format} ? $info->{page_format} : 'html'));
+        format => ($info->{render_format} ? $info->{render_format} : 'html'));
 } # serve_page
 
 =head2 serve_meta

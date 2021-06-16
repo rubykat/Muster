@@ -207,8 +207,8 @@ sub build_html {
 
     my $content = $self->cooked();
     # if the output is going to be text, don't process it
-    if (defined $self->meta->{page_format}
-            and $self->meta->{page_format} eq 'txt')
+    if (defined $self->meta->{render_format}
+            and $self->meta->{render_format} eq 'txt')
     {
         return $content;
     }
