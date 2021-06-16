@@ -1450,7 +1450,7 @@ sub _pagelink {
         return $link;
     }
     # if this is an absolute link, needs a prefix in front of it
-    if ($link eq $info->{pagename})
+    if ($link eq $info->{pagename} and defined $self->{route_prefix})
     {
         $link = $self->{route_prefix} . $link;
     }
@@ -1479,7 +1479,7 @@ sub _pagesrclink {
         return $link;
     }
     # if this is an absolute link, needs a prefix in front of it
-    if ($link eq $info->{pagesrcname})
+    if ($link eq $info->{pagesrcname} and defined $self->{route_prefix})
     {
         $link = $self->{route_prefix} . $link;
     }

@@ -45,7 +45,9 @@ sub register {
     {
         mkdir $self->{img_dir};
     }
-    $self->{img_url} = $conf->{route_prefix} . 'images/';
+    $self->{img_url} = (defined $conf->{route_prefix}
+        ? $conf->{route_prefix} : '/')
+    . 'images/';
 
     $hookmaster->add_hook('img' => sub {
             my %args = @_;
