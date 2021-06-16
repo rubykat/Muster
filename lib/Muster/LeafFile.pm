@@ -271,16 +271,25 @@ The raw content of the page.
 sub build_raw {
     my $self = shift;
 
-    # open file for decoded reading
+    # We only want to read text files;
+    # since there could be all sorts of binary files
+    # that don't have their own LeafFile module,
+    # it behooves us to check before opening it.
     my $fn = $self->filename;
-    open my $fh, '<:encoding(UTF-8)', $fn or croak "couldn't open $fn: $!";
+    my $content = '';
+    if (-T $fn)
+    {
 
-    # slurp
-    my $content = do { local $/; <$fh> };
-    # Test if it is really UTF-8
-    # See: https://www.perlmonks.org/?node_id=669902
-    utf8::decode($content)
-        or carp "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
+        # Open file for decoded reading
+        open my $fh, '<:encoding(UTF-8)', $fn or croak "couldn't open $fn: $!";
+
+        # slurp
+        $content = do { local $/; <$fh> };
+        # Test if it is really UTF-8
+        # See: https://www.perlmonks.org/?node_id=669902
+        utf8::decode($content)
+            or croak "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
+    }
     return $content;
 }
 
