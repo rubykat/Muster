@@ -27,6 +27,7 @@ use File::stat;
 use POSIX qw(strftime);
 use YAML::Any;
 use Lingua::EN::Titlecase;
+use File::MimeInfo::Magic;
 
 has pagename    => '';
 has pagesrcname    => '';
@@ -276,19 +277,20 @@ sub build_raw {
     # that don't have their own LeafFile module,
     # it behooves us to check before opening it.
     my $fn = $self->filename;
+    my $mime_type = mimetype($fn);
     my $content = '';
-    if (-T $fn)
+    if ($mime_type =~ /text/)
     {
-
         # Open file for decoded reading
         open my $fh, '<:encoding(UTF-8)', $fn or croak "couldn't open $fn: $!";
 
         # slurp
         $content = do { local $/; <$fh> };
+
         # Test if it is really UTF-8
         # See: https://www.perlmonks.org/?node_id=669902
         utf8::decode($content)
-            or croak "LeafFile::build_raw INVALID UTF-8 ", $self->filename;
+            or carp "LeafFile::build_raw INVALID UTF-8 ($mime_type) ", $self->filename;
     }
     return $content;
 }
