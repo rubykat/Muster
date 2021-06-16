@@ -228,6 +228,23 @@ sub process {
         }
     }
 
+    # -----------------------------------------
+    # Default field-values
+    # set on a per-extension basis.
+    # These are set in the config for this hook.
+    # They will not clobber existing values.
+    # -----------------------------------------
+    if (defined $self->{config}->{ext}->{$meta->{extension}})
+    {
+        foreach my $field (keys %{$self->{config}->{ext}->{$meta->{extension}}})
+        {
+            if (!defined $meta->{$field})
+            {
+                $meta->{$field} = $self->{config}->{ext}->{$meta->{extension}}->{$field};
+            }
+        }
+    }
+
     $leaf->{meta} = $meta;
 
     return $leaf;

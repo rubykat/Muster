@@ -35,9 +35,9 @@ Hooks are currently in scanning phase where pages are scanned for meta-data.
 
 Hooks are currently in build/assemble phase, where the pages are read and built.
 
-=item $PHASE_FORMAT
+=item $PHASE_FILTER
 
-Hooks are currently in format phase, where the page has already been converted to HTML, and needs post-processing.
+Hooks are currently in filter phase, where the page has already been converted to HTML, and needs post-processing.
 
 =back
 
@@ -107,7 +107,7 @@ sub add_hook {
 
 Run the hooks over the given leaf.
 Leaf must already be created and reclassified.
-The "scanning" flag says whether we are scanning or assembling.
+The "phase" flag says what phase we are in (e.g. scanning)
     
     $leaf = $self->run_hooks(leaf=>$leaf,phase=>$phase);
 
