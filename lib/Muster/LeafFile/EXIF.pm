@@ -176,7 +176,9 @@ sub build_html {
     {
         return $content;
     }
-    elsif (defined $self->meta->{html_from})
+    elsif (defined $content
+            and $content
+            and defined $self->meta->{html_from})
     {
         # This probably needs to be done more generically
         # by using modules' own methods,
