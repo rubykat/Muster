@@ -70,11 +70,6 @@ sub process {
     my $leaf = $args{leaf};
     my $phase = $args{phase};
 
-    #if ($leaf->is_binary)
-    #{
-    #return $leaf;
-    #}
-
     my $content = $leaf->cooked();
     my $page = $leaf->pagename;
 

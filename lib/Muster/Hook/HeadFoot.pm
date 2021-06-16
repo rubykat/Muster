@@ -52,12 +52,6 @@ sub process {
     my $leaf = $args{leaf};
     my $phase = $args{phase};
 
-    # if this isn't a page, we can't include anything in it!
-    #if ($leaf->is_binary)
-    #{
-    #return $leaf;
-    #}
-
     # Don't do header/footer inclusion in the scanning phase;
     # it would be too confusing.
     if ($phase eq $Muster::Hooks::PHASE_SCAN)
