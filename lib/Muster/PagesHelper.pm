@@ -177,7 +177,7 @@ sub _total_pages {
 
 =head2 _make_page_attachments_list
 
-Make a list of related pages to this page.
+Make a list of related files to this page.
 
 =cut
 
@@ -194,12 +194,22 @@ sub _make_page_attachments_list {
     {
         my @att = ();
         my %labels = ();
+        # If this is not a binary-file page
         # just link to the basenames, since this should be relative
-        foreach my $att (@{$info->{attachments}})
+        # But with a binary-file page, the "attachment" is the binary-file itself.
+        if ($info->{is_binary})
         {
-            my $bn = basename($att);
-            push @att, $bn;
-            $labels{$bn} = $bn;
+            push @att, $info->{pagesrclink};
+            $labels{$info->{pagesrclink}} = $info->{hairy_name};
+        }
+        else
+        {
+            foreach my $att (@{$info->{attachments}})
+            {
+                my $bn = basename($att);
+                push @att, $bn;
+                $labels{$bn} = $bn;
+            }
         }
         $att_list = HTML::LinkList::link_list(
             urls=>\@att,

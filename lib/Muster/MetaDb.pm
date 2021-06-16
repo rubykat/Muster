@@ -1217,13 +1217,18 @@ sub _get_page_meta {
             }
         }
 
-        # binary files don't have links, children, or attachments
-        if (!$meta->{is_binary})
+        # binary file pages don't have links or children
+        # and only one attachment: itself
+        if ($meta->{is_binary})
+        {
+            $meta->{attachments} = [$meta->{pagesrcname}];
+        }
+        else # non-binary pages have children, links and attachments
         {
             # get multi-valued fields from other tables
             $meta->{children} = $self->_get_children_for_page($pagename);
-            $meta->{attachments} = $self->_get_attachments_for_page($pagename);
             $meta->{links} = $self->_get_links_for_page($pagename);
+            $meta->{attachments} = $self->_get_attachments_for_page($pagename);
         }
     }
 
@@ -1450,7 +1455,7 @@ sub _pagelink {
         $link = $self->{route_prefix} . $link;
     }
     # if this is a page, it needs a slash added to it
-    if (!$info->{is_binary})
+    #if (!$info->{is_binary})
     {
         $link .= '/';
     }

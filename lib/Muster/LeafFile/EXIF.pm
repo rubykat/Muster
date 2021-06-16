@@ -146,6 +146,14 @@ Title
     return $meta;
 }
 
+=head2 build_raw
+
+The raw content of the page.
+For binary files, the "page" content is empty;
+if you want to show the actual binary file,
+do a source-file request.
+
+=cut
 sub build_raw {
     my $self = shift;
 

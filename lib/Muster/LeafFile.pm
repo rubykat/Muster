@@ -265,7 +265,7 @@ sub build_ext {
 
 =head2 build_raw
 
-The raw content of the file.
+The raw content of the page.
 
 =cut
 sub build_raw {
@@ -355,19 +355,23 @@ sub derive_title {
 
 =head2 build_html
 
-Create the default HTML for non-page.
+Create the default HTML for an unknown page.
 
 =cut
 sub build_html {
     my $self = shift;
     
-    my $link = $self->pagename();
+    my $me = $self->pagename();
+    my $content = $self->cooked();
     my $title = $self->derive_title();
     return <<EOT;
 <h1>$title</h1>
 <p>
-<a href="/$link">$link</a>
+$me
 </p>
+<pre>
+$content
+</pre>
 EOT
 
 }

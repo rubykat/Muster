@@ -89,10 +89,10 @@ sub serve_page {
     {
         return $self->_serve_file(controller=>$c, meta=>$info);
     }
-    elsif ($info->{is_binary})
-    {
-        return $self->_serve_file(controller=>$c, meta=>$info);
-    }
+    #elsif ($info->{is_binary})
+    #{
+    #return $self->_serve_file(controller=>$c, meta=>$info);
+    #}
     elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
     {
         return $c->redirect_to("/${pagename}/");

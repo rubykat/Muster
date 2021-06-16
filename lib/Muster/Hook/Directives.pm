@@ -53,10 +53,10 @@ sub do_directives {
     my $directive = $args{directive};
     my $call = $args{call};
 
-    if ($leaf->is_binary)
-    {
-        return $leaf;
-    }
+    #if ($leaf->is_binary)
+    #{
+    #return $leaf;
+    #}
     my $page = $leaf->pagename;
     my $content = $leaf->cooked;
 

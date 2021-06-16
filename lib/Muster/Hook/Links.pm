@@ -87,30 +87,28 @@ sub process {
     my $leaf = $args{leaf};
     my $phase = $args{phase};
 
-    if ($leaf->is_binary)
-    {
-        return $leaf;
-    }
-
     my $content = $leaf->cooked();
     my $page = $leaf->pagename;
 
     if ($phase eq $Muster::Hooks::PHASE_SCAN)
     {
-        my %links = ();
+        if (!$leaf->is_binary)
+        {
+            my %links = ();
 
-        while ($content =~ /(?<!\\)$Link_Regexp/g)
-        {
-            my $link = $2;
-            my $anchor = $3;
-            if (! $self->is_externallink($page, $link, $anchor)) {
-                $links{$link}++;
+            while ($content =~ /(?<!\\)$Link_Regexp/g)
+            {
+                my $link = $2;
+                my $anchor = $3;
+                if (! $self->is_externallink($page, $link, $anchor)) {
+                    $links{$link}++;
+                }
             }
-        }
-        my @links = sort keys %links;
-        if (scalar @links)
-        {
-            $leaf->{meta}->{links} = \@links;
+            my @links = sort keys %links;
+            if (scalar @links)
+            {
+                $leaf->{meta}->{links} = \@links;
+            }
         }
     }
     else
