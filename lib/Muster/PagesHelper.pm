@@ -22,6 +22,7 @@ use common::sense;
 use Text::NeatTemplate;
 use YAML::Any;
 use File::Basename 'basename';
+use File::Spec;
 use Mojo::URL;
 use HTML::LinkList;
 
@@ -241,15 +242,28 @@ sub _make_page_related_list {
     my $pagename = $c->param('cpath') || 'index';
     $pagename =~ s!/$!!; # remove trailing slash
     my $info = $self->{metadb}->page_or_file_info($pagename);
-    my $current_url = $info->{pagelink} // "";
+    my $current_url = $info->{pagename} // "";
 
     # get the links to the pages
-    my @paths = $self->{metadb}->allpagelinks();
-
+    my @pages = $self->{metadb}->non_hidden_pagelist();
+    # need to add slashes to ends of paths
+    my @paths = ();
+    foreach my $pn (@pages)
+    {
+        if ($pn !~ m{/$})
+        {
+            $pn .= '/';
+        }
+        push @paths, $pn;
+    }
     my $link_list = HTML::LinkList::nav_tree(
         current_url=>$current_url,
         paths=>\@paths,
     );
+    # figure out how get to the top page from this page
+    my $rel_str = File::Spec->abs2rel('/', '/'.$info->{pagename});
+    # alter the links to be relative to this page
+    $link_list =~ s!href="!href="${rel_str}/!g;
 
     return $link_list;
 } # _make_page_related_list
@@ -266,7 +280,7 @@ sub _pagelist {
 
     my $location = $c->url_for('pagelist') // "";
     # get the links to the pages
-    my @paths = $self->{metadb}->allpagelinks();
+    my @paths = $self->{metadb}->non_hidden_pagelist();
 
     my $link_list = HTML::LinkList::full_tree(
         current_url=>$location,

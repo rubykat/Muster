@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title bald_name hairy_name date filetype is_binary pagelink pagesrcname extension filename parent_page grandparent_page)];
+    $self->{primary_fields} = [qw(title bald_name hairy_name date filetype is_binary pagesrcname extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
@@ -312,14 +312,14 @@ sub pagelist {
     return $self->_get_all_pagenames();
 } # pagelist
 
-=head2 allpagelinks
+=head2 non_hidden_pagelist
 
-Query the database, return a list of all pages' pagelinks.
-This does not include _Header or _Footer pages.
+Query the database, return a list of all pages
+NOT including _Header or _Footer pages.
 
 =cut
 
-sub allpagelinks {
+sub non_hidden_pagelist {
     my $self = shift;
     my %args = @_;
 
@@ -328,9 +328,9 @@ sub allpagelinks {
         return undef;
     }
 
-    my $pagelinks = $self->_do_one_col_query("SELECT pagelink FROM pagefiles WHERE is_binary IS NULL AND bald_name NOT GLOB '_*' ORDER BY page;");
-    return @{$pagelinks};
-} # allpagelinks
+    my $pages = $self->_do_one_col_query("SELECT page FROM pagefiles WHERE is_binary IS NULL AND bald_name NOT GLOB '_*' ORDER BY page;");
+    return @{$pages};
+} # non_hidden_pagelist
 
 =head2 total_pages
 
@@ -1429,39 +1429,6 @@ sub _find_pagename {
     return $realpage;
 } # _find_pagename
 
-=head2 _pagelink
-
-The page as if it were a html link.
-This does things like add a route-prefix or trailing slash if it is needed.
-
-It's okay to hardcode the route-prefix into the database, because it isn't
-as if one is going to be mounting the same config multiple times with different
-route-prefixes. If you have a different config, you're going to need a
-different database.
-
-=cut
-sub _pagelink {
-    my $self = shift;
-    my $link = shift;
-    my $info = shift;
-
-    if (!defined $info)
-    {
-        return $link;
-    }
-    # if this is an absolute link, needs a prefix in front of it
-    if ($link eq $info->{pagename} and defined $self->{route_prefix})
-    {
-        $link = $self->{route_prefix} . $link;
-    }
-    # if this is a page, it needs a slash added to it
-    #if (!$info->{is_binary})
-    {
-        $link .= '/';
-    }
-    return $link;
-} # _pagelink
-
 =head2 _add_page_data
 
 Add metadata to db for one page.
@@ -1477,14 +1444,6 @@ sub _add_page_data {
     return unless $self->{dbh};
     my $dbh = $self->{dbh};
 
-    # ------------------------------------------------
-    # Derive derivable data
-    # ------------------------------------------------
-    if (!$meta{pagelink})
-    {
-        $meta{pagelink} = $self->_pagelink($meta{pagename}, \%meta);
-    }
-    
     # ------------------------------------------------
     # TABLE: pagefiles
     # ------------------------------------------------
