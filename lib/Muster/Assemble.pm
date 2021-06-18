@@ -65,8 +65,8 @@ sub serve_page {
     # If there isn't, either this isn't canonical, or it isn't a page request.
     # However, pagenames don't have a trailing slash.
     # Yes, this is confusing.
-    # So I'm going to un-confuse it by saying we don't care if the request
-    # is canonical or not - if we can find a page, serve a page.
+    # So why do we care if a URL is canonical? Because if it isn't canonical,
+    # it messes up relative page links. Ugh.
     my $pagename = $c->param('cpath') // 'index';
     my $has_trailing_slash = 0;
     my $is_source_file_request = 0;
@@ -79,6 +79,12 @@ sub serve_page {
     {
         $pagename = $1;
         $is_source_file_request = 1;
+    }
+    elsif ($c->param('who'))
+    {
+        # we have extra data passed on to the end of the URL
+        # and the path is actually canonical
+        $has_trailing_slash = 1;
     }
 
     # now we need to find if this page exists, and what type it is
@@ -93,10 +99,11 @@ sub serve_page {
     {
         return $self->_serve_file(controller=>$c, meta=>$info);
     }
-    #elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
-    #{
-    #return $c->redirect_to("/${pagename}/");
-    #}
+    elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
+    {
+        my $redir = "/${pagename}/";
+        return $c->redirect_to($redir);
+    }
 
     my $leaf = $self->_create_and_process_leaf(controller=>$c,meta=>$info);
 

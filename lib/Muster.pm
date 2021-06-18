@@ -158,8 +158,8 @@ sub startup {
     $r->get('/_debug/*cpath' => $do_debug);
     $r->get('/_meta/*cpath' => $do_meta);
     # pages with parameters
-    $r->get('/*cpath/p-<:who>/p-<:where>/p-<:what>' => $do_page);
-    $r->get('/*cpath/p-<:who>/p-<:where>' => $do_page);
+    $r->get('/*cpath/p-<:who>=<:where>=<:what>' => $do_page);
+    $r->get('/*cpath/p-<:who>=<:where>' => $do_page);
     $r->get('/*cpath/p-<:who>' => $do_page);
     # anything else should be a page or file
     $r->get('/*cpath' => $do_page);
