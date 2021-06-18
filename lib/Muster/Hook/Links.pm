@@ -238,9 +238,12 @@ sub htmllink {
         $linktext=basename($link);
     }
 
-    return "<span class=\"selflink\">$linktext</span>"
-    if length $bestlink && $page eq $bestlink &&
-    ! defined $opts{anchor};
+    if (length $bestlink
+        && $page eq $bestlink
+        && ! defined $opts{anchor})
+    {
+        return "<span class=\"selflink\">$linktext</span>";
+    }
 
     if (!$page_exists or !$bestlink)
     {
@@ -248,7 +251,7 @@ sub htmllink {
     }
     
     $bestlink=File::Spec->abs2rel($bestlink, $page);
-    $bestlink=$bl_info->{pagelink};
+    #$bestlink=$bl_info->{pagelink};
 
     if (defined $opts{anchor}) {
         $bestlink.="#".$opts{anchor};

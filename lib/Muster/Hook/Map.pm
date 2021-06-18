@@ -16,6 +16,7 @@ use Muster::LeafFile;
 use Muster::Hooks;
 use Muster::Hook::Links;
 use File::Basename qw(basename);
+use File::Spec;
 use HTML::LinkList;
 use YAML::Any;
 
@@ -137,9 +138,11 @@ sub process {
         my @urls = ();
         foreach my $pn (@matching_pages)
         {
-            my $pi = $self->{metadb}->page_or_file_info($pn);
             $labels{$pn} = basename($pn);
-            push @urls, $pi->{pagelink};
+            ##my $pi = $self->{metadb}->page_or_file_info($pn);
+            ##push @urls, $pi->{pagelink};
+            my $relpage = File::Spec->abs2rel($pn, $leaf->pagename);
+            push @urls, $relpage;
         }
         $result = HTML::LinkList::link_list(
             urls=>\@urls,
@@ -172,7 +175,8 @@ sub process {
             {
                 $max_depth = $pd;
             }
-            my $urlto = $page_info->{pagelink};
+            #my $urlto = $page_info->{pagelink};
+            my $urlto = File::Spec->abs2rel($page, $leaf->pagename);
             push @link_list, $urlto;
 
             if (defined $show)
