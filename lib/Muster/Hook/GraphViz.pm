@@ -39,9 +39,7 @@ sub register {
     {
         mkdir $self->{graphs_dir};
     }
-    $self->{img_url} = (defined $conf->{route_prefix}
-        ? $conf->{route_prefix} : '/')
-    . 'graphs/';
+    $self->{img_url} = '/graphs/';
 
     my $callback = sub {
         my %args = @_;
