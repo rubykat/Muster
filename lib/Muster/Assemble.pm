@@ -20,7 +20,7 @@ use Carp;
 use Muster::MetaDb;
 use Muster::LeafFile;
 use Muster::Hooks;
-use File::Slurper 'read_binary';
+use File::LibMagic;
 use YAML::Any;
 use Module::Pluggable search_path => ['Muster::Hook'], instantiate => 'new';
 
@@ -44,6 +44,8 @@ sub init {
     $self->{hookmaster} = Muster::Hooks->new();
     $self->{hookmaster}->init($app->config);
 
+    $self->{file_magic} = File::LibMagic->new();
+
     return $self;
 } # init
 
@@ -63,6 +65,8 @@ sub serve_page {
     # If there isn't, either this isn't canonical, or it isn't a page request.
     # However, pagenames don't have a trailing slash.
     # Yes, this is confusing.
+    # So I'm going to un-confuse it by saying we don't care if the request
+    # is canonical or not - if we can find a page, serve a page.
     my $pagename = $c->param('cpath') // 'index';
     my $has_trailing_slash = 0;
     my $is_source_file_request = 0;
@@ -89,16 +93,17 @@ sub serve_page {
     {
         return $self->_serve_file(controller=>$c, meta=>$info);
     }
-    elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
-    {
-        return $c->redirect_to("/${pagename}/");
-    }
+    #elsif (!$has_trailing_slash and $pagename ne 'index') # non-canonical
+    #{
+    #return $c->redirect_to("/${pagename}/");
+    #}
 
     my $leaf = $self->_create_and_process_leaf(controller=>$c,meta=>$info);
 
     my $html = $leaf->html();
     unless (defined $html)
     {
+        say STDERR "404: html not rendered for '$pagename'";
         $c->reply->not_found;
         return;
     }
@@ -162,26 +167,11 @@ sub _serve_file {
         # not found
         return;
     }
-    # if this is binary, the format is the extension (exclude the dot)
-    my $ext = '';
-    if ($filename =~ /\.(\w+)$/)
-    {
-        $ext = $1;
-    }
-    my $format = '';
-    if ($meta->{is_binary})
-    {
-        $format = $ext;
-    }
-    else
-    {
-        $format = 'txt';
-    }
-    # read the image
-    my $bytes = read_binary($filename);
+    # Figure out the correct mime-type to give
+    my $file_info = $self->{file_magic}->info_from_filename($filename);
+    $c->res->headers->content_type($file_info->{mime_type});
+    $c->reply->file($filename);
 
-    # now display the logo
-    $c->render(data => $bytes, format => $format);
 } # _serve_file
 
 =head2 _create_and_process_leaf
