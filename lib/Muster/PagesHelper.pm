@@ -242,7 +242,6 @@ sub _make_page_related_list {
     my $pagename = $c->param('cpath') || 'index';
     $pagename =~ s!/$!!; # remove trailing slash
     my $info = $self->{metadb}->page_or_file_info($pagename);
-    my $current_url = $info->{pagename} // "";
 
     # get the links to the pages
     my @pages = $self->{metadb}->non_hidden_pagelist();
@@ -252,18 +251,18 @@ sub _make_page_related_list {
     {
         if ($pn !~ m{/$})
         {
-            $pn .= '/';
+            $pn = "/${pn}/";
         }
         push @paths, $pn;
     }
     my $link_list = HTML::LinkList::nav_tree(
-        current_url=>$current_url,
+        current_url=>"/${pagename}/",
         paths=>\@paths,
     );
     # figure out how get to the top page from this page
     my $rel_str = File::Spec->abs2rel('/', '/'.$info->{pagename});
     # alter the links to be relative to this page
-    $link_list =~ s!href="!href="${rel_str}/!g;
+    $link_list =~ s!href="!href="${rel_str}!g;
 
     return $link_list;
 } # _make_page_related_list
