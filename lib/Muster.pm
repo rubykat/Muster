@@ -49,7 +49,7 @@ sub startup {
     {
         $conf_file = $ENV{MUSTER_CONFIG};
     }
-    print STDERR "Muster::VERSION $Muster::VERSION\n";
+    print STDERR "Muster::VERSION=$Muster::VERSION CONFIG: $conf_file\n";
     my $mojo_config = $self->plugin('Config' => { file => $conf_file });
 
     # -------------------------------------------
