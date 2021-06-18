@@ -139,9 +139,10 @@ sub process {
         foreach my $pn (@matching_pages)
         {
             $labels{$pn} = basename($pn);
-            ##my $pi = $self->{metadb}->page_or_file_info($pn);
-            ##push @urls, $pi->{pagelink};
-            my $relpage = File::Spec->abs2rel($pn, $leaf->pagename);
+            # top-level index page is treated differently
+            my $relpage = ($leaf->pagename eq 'index'
+                ? $pn
+                : File::Spec->abs2rel($pn, $leaf->pagename));
             push @urls, $relpage;
         }
         $result = HTML::LinkList::link_list(
@@ -175,8 +176,9 @@ sub process {
             {
                 $max_depth = $pd;
             }
-            #my $urlto = $page_info->{pagelink};
-            my $urlto = File::Spec->abs2rel($page, $leaf->pagename);
+            my $urlto = ($leaf->pagename eq 'index'
+                ? $page
+                : File::Spec->abs2rel($page, $leaf->pagename));
             push @link_list, $urlto;
 
             if (defined $show)

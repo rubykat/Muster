@@ -250,8 +250,7 @@ sub htmllink {
         return "<a class=\"createlink\" href=\"$link\">$linktext ?</a>";
     }
     
-    $bestlink=File::Spec->abs2rel($bestlink, $page);
-    #$bestlink=$bl_info->{pagelink};
+    $bestlink=File::Spec->abs2rel($bestlink, $page) if $page ne 'index';
 
     if (defined $opts{anchor}) {
         $bestlink.="#".$opts{anchor};
