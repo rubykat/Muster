@@ -36,7 +36,7 @@ Set the defaults for the object if they are not defined already.
 sub init {
     my $self = shift;
 
-    $self->{primary_fields} = [qw(title bald_name hairy_name date filetype is_binary pagelink pagesrcname pagesrclink extension filename parent_page grandparent_page)];
+    $self->{primary_fields} = [qw(title bald_name hairy_name date filetype is_binary pagelink pagesrcname extension filename parent_page grandparent_page)];
     if (!defined $self->{metadb_db})
     {
         # give a default name
@@ -1462,30 +1462,6 @@ sub _pagelink {
     return $link;
 } # _pagelink
 
-=head2 _pagesrclink
-
-The page-source as if it were a html link.
-This does things like add a route-prefix.
-(No trailing slash, because the page-source is not a page)
-
-=cut
-sub _pagesrclink {
-    my $self = shift;
-    my $link = shift;
-    my $info = shift;
-
-    if (!defined $info)
-    {
-        return $link;
-    }
-    # if this is an absolute link, needs a prefix in front of it
-    if ($link eq $info->{pagesrcname} and defined $self->{route_prefix})
-    {
-        $link = $self->{route_prefix} . $link;
-    }
-    return $link;
-} # _pagesrclink
-
 =head2 _add_page_data
 
 Add metadata to db for one page.
@@ -1507,10 +1483,6 @@ sub _add_page_data {
     if (!$meta{pagelink})
     {
         $meta{pagelink} = $self->_pagelink($meta{pagename}, \%meta);
-    }
-    if (!$meta{pagesrclink})
-    {
-        $meta{pagesrclink} = $self->_pagesrclink($meta{pagesrcname}, \%meta);
     }
     
     # ------------------------------------------------
