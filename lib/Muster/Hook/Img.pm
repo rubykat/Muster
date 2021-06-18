@@ -45,7 +45,7 @@ sub register {
     {
         mkdir $self->{img_dir};
     }
-    $self->{img_url} = '/images/';
+    $self->{img_url} = 'images/';
 
     $hookmaster->add_hook('img' => sub {
             my %args = @_;
@@ -273,6 +273,9 @@ sub process {
         {
             croak sprintf("failed to determine size of image %s", $imgpage)
         }
+
+        # link needs to be relative to this page
+        $imglink = File::Spec->abs2rel($imglink, $leaf->pagename);
     }
 
     if (! exists $params{class})
@@ -299,7 +302,7 @@ sub process {
     my $link;
     if (! defined $params{link})
     {
-        $link = $img_info->{pagesrclink};
+        $link = File::Spec->abs2rel($img_info->{pagesrcname}, $leaf->{pagename});
     }
     elsif ($params{link} =~ /^\w+:\/\//)
     {

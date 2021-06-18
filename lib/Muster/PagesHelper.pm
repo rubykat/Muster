@@ -132,9 +132,14 @@ sub _rightbar {
     my $pagename = $c->param('cpath');
     $pagename =~ s!/$!!; # remove trailing slash
     my $info = $self->{metadb}->page_or_file_info($pagename);
+    $pagename = $info->{pagename};
 
-    my $src_file_url = $info->{pagesrclink};
-    my $src_file_label = 'Source';
+    # The source-file relative to the "page" is reached by going up
+    # because the page URL is foo/bar/page/
+    # and the page source URL is foo/bar/page.ext
+    # so the relative URL is foo/bar/page/../page.ext
+    my $src_file_url = '../' . $info->{hairy_name};
+    my $src_file_label = $info->{hairy_name};
 
     my $current_url = $c->req->url->to_abs;
     my $meta_dest_url = $c->url_for("/_meta/$pagename/");
@@ -150,7 +155,7 @@ sub _rightbar {
     my $out=<<EOT;
 <p class="total">$total pages</p>
 <p class="srcfile"><a href="$src_file_url">$src_file_label</a></p>
-<p class="metadest"><a href="$meta_dest_url">$meta_dest_label</a></p>
+<p class="metadest"><a href="$meta_dest_url">$meta_dest_url</a></p>
 $atts
 EOT
         return $out;
@@ -200,8 +205,9 @@ sub _make_page_attachments_list {
         # But with a binary-file page, the "attachment" is the binary-file itself.
         if ($info->{is_binary})
         {
-            push @att, $info->{pagesrclink};
-            $labels{$info->{pagesrclink}} = $info->{hairy_name};
+            my $src_link = '../'.$info->{hairy_name};
+            push @att, $src_link;
+            $labels{$src_link} = $info->{hairy_name};
         }
         else
         {

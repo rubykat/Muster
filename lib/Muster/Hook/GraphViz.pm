@@ -4,6 +4,7 @@ use Mojo::Base 'Muster::Hook::Directives';
 use Muster::LeafFile;
 use Muster::Hooks;
 use Digest::SHA;
+use File::Spec;
 
 use Carp 'croak';
 
@@ -39,7 +40,7 @@ sub register {
     {
         mkdir $self->{graphs_dir};
     }
-    $self->{img_url} = '/graphs/';
+    $self->{img_url} = 'graphs/';
 
     my $callback = sub {
         my %args = @_;
@@ -108,7 +109,7 @@ sub process {
         print $fh $src;
         close $fh;
     }
-    my $imglink = $self->{img_url} . $dest;
+    my $imglink = File::Spec->abs2rel($self->{img_url} . $dest, $leaf->pagename);
 
     return <<EOT;
 <img src="$imglink" alt="$sha"/>
