@@ -18,7 +18,6 @@ use Muster::LeafFile;
 use Muster::Hooks;
 use Muster::Hook::Links;
 use File::Basename qw(basename);
-use HTML::LinkList;
 use YAML::Any;
 
 use Carp 'croak';

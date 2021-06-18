@@ -139,7 +139,8 @@ sub _rightbar {
     my $current_url = $c->req->url->to_abs;
     my $meta_dest_url = $c->url_for("/_meta/$pagename/");
     my $meta_dest_label = 'Meta';
-    if ($current_url =~ /_meta/) # we're already looking at Meta
+    if (defined $current_url
+            and $current_url =~ /_meta/) # we're already looking at Meta
     {
         $meta_dest_url =~ s/_meta\///;
         $meta_dest_label = "Page";
@@ -234,7 +235,7 @@ sub _make_page_related_list {
     my $pagename = $c->param('cpath') || 'index';
     $pagename =~ s!/$!!; # remove trailing slash
     my $info = $self->{metadb}->page_or_file_info($pagename);
-    my $current_url = $info->{pagelink};
+    my $current_url = $info->{pagelink} // "";
 
     # get the links to the pages
     my @paths = $self->{metadb}->allpagelinks();
@@ -257,7 +258,7 @@ sub _pagelist {
     my $self  = shift;
     my $c  = shift;
 
-    my $location = $c->url_for('pagelist');
+    my $location = $c->url_for('pagelist') // "";
     # get the links to the pages
     my @paths = $self->{metadb}->allpagelinks();
 
