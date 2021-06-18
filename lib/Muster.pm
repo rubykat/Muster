@@ -49,6 +49,7 @@ sub startup {
     {
         $conf_file = $ENV{MUSTER_CONFIG};
     }
+    print STDERR "Muster::VERSION $Muster::VERSION\n";
     my $mojo_config = $self->plugin('Config' => { file => $conf_file });
 
     # -------------------------------------------
@@ -156,6 +157,10 @@ sub startup {
     $r->get('/_debug' => $do_debug);
     $r->get('/_debug/*cpath' => $do_debug);
     $r->get('/_meta/*cpath' => $do_meta);
+    # pages with parameters
+    #$r->get('/*cpath/p-<:who>/p-<:where>/p-<:what>' => $do_page);
+    #$r->get('/*cpath/p-<:who>/p-<:where>' => $do_page);
+    #$r->get('/*cpath/p-<:who>' => $do_page);
     # anything else should be a page or file
     $r->get('/*cpath' => $do_page);
 }
