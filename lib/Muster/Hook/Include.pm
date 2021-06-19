@@ -80,7 +80,11 @@ sub process {
     # Do a naive solution first: simply include the raw text of the other pages
     # into this page, IFF they are of the same filetype.
     # This ought to work in most cases, if I'm sticking to Markdown for the default page type.
-    my $this_filetype = $leaf->filetype;
+    # If this is a binary file, use the "html_from" value if it exists.
+    my $this_filetype = ($leaf->is_binary
+        ? (defined $leaf->meta->{html_from} and $leaf->meta->{html_from}
+            ? $leaf->meta->{html_from} : $leaf->filetype)
+        : $leaf->filetype);
     my @in_stuff = ();
     foreach my $page (@list)
     {
