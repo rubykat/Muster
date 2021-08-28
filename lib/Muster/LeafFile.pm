@@ -145,8 +145,11 @@ sub build_head_append {
     # put in a nice description, yes?
     $head_append .= sprintf('<meta name="description" content="%s"/>',
         $self->meta->{description}) if exists $self->{meta} and exists $self->meta->{description};
-    # then special stuff
-    $head_append .= $self->meta->{head_append} if exists $self->{meta} and exists $self->meta->{head_append};
+
+    # The head_append content is not in the meta-data
+    # because it should only be created/used in the build phase.
+    # Note the preceding underscore.
+    $head_append .= $self->{_head_append} if exists $self->{_head_append};
     return $head_append;
 } # build_head_append
 
