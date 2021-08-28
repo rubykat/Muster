@@ -58,6 +58,19 @@ sub register {
     return $self;
 } # register
 
+=head2 register_filter
+
+Initialize, and register HTML-filters.
+
+=cut
+sub register_filter {
+    my $self = shift;
+    my $hookmaster = shift;
+    my $conf = shift;
+
+    return $self;
+} # register_filter
+
 =head2 process
 
 Process (scan or modify) a leaf object.  In scanning phase, it may update the

@@ -41,7 +41,6 @@ has filetype   => sub { shift->build_filetype };
 has extension  => sub { shift->build_ext };
 has pagename   => sub { shift->build_pagename };
 has pagesrcname   => sub { shift->build_pagesrcname };
-has head_append   => sub { shift->build_head_append };
 
 =head2 raw
 
@@ -131,27 +130,6 @@ sub build_title {
     return $1 if defined $self->html and $self->html =~ m|<h1>(.*?)</h1>|i;
     return $self->bald_name;
 } # build_title
-
-=head2 build_head_append
-
-Build the head_append data for this page.  This is stuff that will go at the
-end of the <head> section of the generated HTML page.
-
-=cut
-sub build_head_append {
-    my $self = shift;
-
-    my $head_append = "";
-    # put in a nice description, yes?
-    $head_append .= sprintf('<meta name="description" content="%s"/>',
-        $self->meta->{description}) if exists $self->{meta} and exists $self->meta->{description};
-
-    # The head_append content is not in the meta-data
-    # because it should only be created/used in the build phase.
-    # Note the preceding underscore.
-    $head_append .= $self->{_head_append} if exists $self->{_head_append};
-    return $head_append;
-} # build_head_append
 
 =head2 reclassify
 

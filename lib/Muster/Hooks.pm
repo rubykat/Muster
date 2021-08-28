@@ -88,6 +88,22 @@ sub init {
         }
     }
 
+    # Filters use register_filter instead
+    # This will be a no-op for most hooks.
+    $self->{filters} = {};
+    $self->{filterorder} = [];
+    foreach my $mod (@{$config->{hooks}})
+    {
+        if ($phooks{$mod})
+        {
+            $phooks{$mod}->register_filter($self,$config);
+        }
+        else
+        {
+            warn "Filter '$mod' does not exist";
+        }
+    }
+
     return $self;
 } # init
 
@@ -126,6 +142,40 @@ sub run_hooks {
 
     return $leaf;
 } # run_hooks
+
+=head2 add_filter
+
+Add a post-processing filter.
+
+=cut
+sub add_filter {
+    my ($self, $name, $call) = @_;
+    $self->{filters}->{$name} = $call;
+    push @{$self->{filterorder}}, $name;
+    return $self;
+} # add_filter
+
+=head2 run_filters
+
+Run post-processing filters over already-rendered HTML.
+    
+    $html = $self->run_filters(html=>$html,phase=>$phase);
+
+=cut
+
+sub run_filters {
+    my $self = shift;
+    my %args = @_;
+
+    my $html = $args{html};
+
+    foreach my $hn (@{$self->{filterorder}})
+    {
+        $html = $self->{filters}->{$hn}(%args);
+    }
+
+    return $html;
+} # run_filters
 
 1; # End of Muster::Hooks
 __END__

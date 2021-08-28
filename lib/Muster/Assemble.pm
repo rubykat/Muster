@@ -108,11 +108,14 @@ sub serve_page {
         $c->reply->not_found;
         return;
     }
+    my $filtered_html = $self->{hookmaster}->run_filters(
+        html=>$html,
+        controller=>$c,
+        phase=>$Muster::Hooks::PHASE_FILTER);
 
     $c->stash('title' => $leaf->title);
     $c->stash('pagename' => $pagename);
-    $c->stash('content' => $html);
-    $c->stash('head_append' => $leaf->head_append);
+    $c->stash('content' => $filtered_html);
     $c->render(template => 'page',
         format => ($info->{render_format} ? $info->{render_format} : 'html'));
 } # serve_page
