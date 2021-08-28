@@ -194,6 +194,7 @@ __DATA__
 % layout 'foil';
 % content_for 'head_extra' => begin
 <link rel="stylesheet" href="<%= url_for('/css') %>/muster.css" type="text/css" />
+<%= head_append %>
 % end
 % content_for 'verso' => begin
 <%== muster_sidebar %>
@@ -213,6 +214,7 @@ __DATA__
 % layout 'foil';
 % content_for 'head_extra' => begin
 <link rel="stylesheet" href="<%= url_for('/css') %>/muster.css" type="text/css" />
+<%= head_append %>
 % end
 % content_for 'verso' => begin
 <%== muster_sidebar %>
@@ -235,7 +237,6 @@ __DATA__
     <title><%= title %></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     %= content 'head_extra'
-    %= content 'head_append'
 </head>
 <body>
 <main>
