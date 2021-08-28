@@ -80,12 +80,6 @@ sub serve_page {
         $pagename = $1;
         $is_source_file_request = 1;
     }
-    elsif ($c->param('who'))
-    {
-        # we have extra data passed on to the end of the URL
-        # and the path is actually canonical
-        $has_trailing_slash = 1;
-    }
 
     # now we need to find if this page exists, and what type it is
     my $info = $self->{metadb}->page_or_file_info($pagename);
