@@ -123,44 +123,6 @@ sub process {
         $meta->{plural} = $leaf->bald_name;
     }
 
-    # Classify the prose length for for pages which have a "words" field;
-    # this assumes that this is a page which has information ABOUT
-    # some piece of prose, NOT that the page itself contains a piece of prose.
-    # For that, consult the "wordcount" field.
-    if ($meta->{words})
-    {
-        my $len = '';
-        if ($meta->{words} == 100)
-        {
-            $len = 'Drabble';
-        } elsif ($meta->{words} == 200)
-        {
-            $len = 'Double-Drabble';
-        } elsif ($meta->{words} >= 75000)
-        {
-            $len = 'Long-Novel';
-        } elsif ($meta->{words} >= 50000)
-        {
-            $len = 'Novel';
-        } elsif ($meta->{words} >= 25000)
-        {
-            $len = 'Novella';
-        } elsif ($meta->{words} >= 7500)
-        {
-            $len = 'Novelette';
-        } elsif ($meta->{words} >= 2000)
-        {
-            $len = 'Short-Story';
-        } elsif ($meta->{words} > 500)
-        {
-            $len = 'Short-Short';
-        } elsif ($meta->{words} <= 500)
-        {
-            $len = 'Flash';
-        }
-        $meta->{story_length} = $len;
-    }
-
     # ============================================
     # DATE stuff
     # ============================================
