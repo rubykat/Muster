@@ -235,6 +235,7 @@ __DATA__
     <title><%= title %></title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     %= content 'head_extra'
+    %= content 'head_append'
 </head>
 <body>
 <main>

@@ -112,6 +112,7 @@ sub serve_page {
     $c->stash('title' => $leaf->title);
     $c->stash('pagename' => $pagename);
     $c->stash('content' => $html);
+    $c->stash('head_append' => $leaf->head_append);
     $c->render(template => 'page',
         format => ($info->{render_format} ? $info->{render_format} : 'html'));
 } # serve_page

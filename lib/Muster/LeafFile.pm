@@ -41,6 +41,7 @@ has filetype   => sub { shift->build_filetype };
 has extension  => sub { shift->build_ext };
 has pagename   => sub { shift->build_pagename };
 has pagesrcname   => sub { shift->build_pagesrcname };
+has head_append   => sub { shift->build_head_append };
 
 =head2 raw
 
@@ -129,7 +130,20 @@ sub build_title {
     return $self->meta->{title} if exists $self->{meta} and exists $self->meta->{title};
     return $1 if defined $self->html and $self->html =~ m|<h1>(.*?)</h1>|i;
     return $self->bald_name;
-}
+} # build_title
+
+=head2 build_head_append
+
+Build the head_append data for this page.  This is stuff that will go at the
+end of the <head> section of the generated HTML page.
+
+=cut
+sub build_head_append {
+    my $self = shift;
+
+    return $self->meta->{head_append} if exists $self->{meta} and exists $self->meta->{head_append};
+    return "<!-- head_append -->";
+} # build_head_append
 
 =head2 reclassify
 
