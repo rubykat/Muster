@@ -141,10 +141,13 @@ end of the <head> section of the generated HTML page.
 sub build_head_append {
     my $self = shift;
 
-    return $self->meta->{head_append} if exists $self->{meta} and exists $self->meta->{head_append};
-    return sprintf('<meta name="description" content="%s"/>',
+    my $head_append = "";
+    # put in a nice description, yes?
+    $head_append .= sprintf('<meta name="description" content="%s"/>',
         $self->meta->{description}) if exists $self->{meta} and exists $self->meta->{description};
-    return "<!-- head_append -->";
+    # then special stuff
+    $head_append .= $self->meta->{head_append} if exists $self->{meta} and exists $self->meta->{head_append};
+    return $head_append;
 } # build_head_append
 
 =head2 reclassify
