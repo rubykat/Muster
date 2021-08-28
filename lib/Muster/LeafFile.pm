@@ -142,6 +142,8 @@ sub build_head_append {
     my $self = shift;
 
     return $self->meta->{head_append} if exists $self->{meta} and exists $self->meta->{head_append};
+    return sprintf('<meta name="description" content="%s"/>',
+        $self->meta->{description}) if exists $self->{meta} and exists $self->meta->{description};
     return "<!-- head_append -->";
 } # build_head_append
 
