@@ -99,6 +99,9 @@ sub serve_page {
         return $c->redirect_to($redir);
     }
 
+    # Make sure that "head_append" is defined
+    $c->stash('head_append' => "");
+
     my $leaf = $self->_create_and_process_leaf(controller=>$c,meta=>$info);
 
     my $html = $leaf->html();
