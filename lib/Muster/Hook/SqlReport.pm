@@ -375,7 +375,7 @@ sub do_report {
 	? @{$args{show}}
 	: ($args{show}
 	    ? split(' ', $args{show})
-	    : $self->get_colnames($table)));
+	    : $self->get_colnames($table,do_rowid=>0)));
 
     my $total = $self->get_total_matching(%args);
     if ($total == 0)
