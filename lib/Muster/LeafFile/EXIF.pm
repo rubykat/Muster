@@ -44,7 +44,7 @@ sub build_meta {
     # There are multiple fields which could be used as a file "description".
     # Check through them until you find a non-empty one.
     my $description = '';
-    foreach my $field (qw(Description Caption-Abstract Comment ImageDescription UserComment))
+    foreach my $field (qw(Caption-Abstract Comment ImageDescription UserComment Description))
     {
         if (exists $info->{$field} and $info->{$field} and !$description)
         {
