@@ -284,7 +284,7 @@ sub process {
     }
 
     my $attrs='';
-    foreach my $attr (qw{alt title class id hspace vspace})
+    foreach my $attr (qw{alt title class id style})
     {
         if (exists $params{$attr})
         {
