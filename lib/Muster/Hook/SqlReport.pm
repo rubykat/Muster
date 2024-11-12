@@ -132,11 +132,11 @@ sub process {
 
     # if there is query_form enabled:
     # - print a query form
-    my $form = '';
+    my $prefix = '';
     if (exists $params{query_form} and $params{query_form})
     {
         my $this_url = $c->req->url->to_string;
-        $form =<<EOT;
+        $prefix =<<EOT;
 <div>
 <form action="$this_url">
 <strong>WHERE:</strong> $w
@@ -144,6 +144,15 @@ sub process {
 <textarea name="$q_id" rows="4" cols="60">$q</textarea>
 <input type="submit" value="Search">
 </form>
+</div>
+EOT
+    }
+    elsif (exists $params{show_query} and $params{show_query})
+    {
+        $prefix =<<EOT;
+<div>
+<strong>WHERE:</strong>
+<pre>$w</pre>
 </div>
 EOT
     }
@@ -157,7 +166,7 @@ EOT
         $out2 =~ s/CONTENTS/$result/g;
         $result = $out2;
     }
-    return $form . $result;
+    return $prefix . $result;
 } # preprocess
 
 sub DESTROY {
