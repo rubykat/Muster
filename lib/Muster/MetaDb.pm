@@ -669,24 +669,22 @@ sub _update_derived_tables {
         croak __PACKAGE__ . " failed to prepare '$iq' : $DBI::errstr";
     }
 
-    my $ret;
-    my $transaction_on = 0;
+    # ============== Use transactions PROPERLY! ====================
+    # (Major bug when I tried to speed up updates by only committing 100
+    # records at a time, since with a large database, you could end up with
+    # a race condition, and the database would be incorrect!)
+    # ==============================================================
+    my $ret = $dbh->do("BEGIN TRANSACTION;");
+    if (!$ret)
+    {
+        croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+    }
     my $num_trans = 0;
     my @pagefiles = (defined $args{pages}
         ? sort keys %{$args{pages}}
         : $self->_get_all_pagefiles());
     foreach my $page (@pagefiles)
     {
-        if (!$transaction_on)
-        {
-            my $ret = $dbh->do("BEGIN TRANSACTION;");
-            if (!$ret)
-            {
-                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
-            }
-            $transaction_on = 1;
-            $num_trans = 0;
-        }
         my $meta = $self->_get_fields_for_page($page);
 
         my @values = ();
@@ -713,15 +711,7 @@ sub _update_derived_tables {
         {
             croak __PACKAGE__ . " failed '$iq' (" . join(',', ($page, @values)) . "): $DBI::errstr";
         }
-        # do the commits in bursts
         $num_trans++;
-        if ($transaction_on and $num_trans > 100)
-        {
-            $self->_commit();
-            $transaction_on = 0;
-            $num_trans = 0;
-        }
-
     } # for each page
 
     # Now, delete rows that don't have matching pages
@@ -731,12 +721,10 @@ sub _update_derived_tables {
     {
         croak "FAILED to execute '$dq' $DBI::errstr";
     }
-    
-    if ($transaction_on)
-    {
-        $self->_commit();
-    }
 
+    # Commit ONLY when all updates are done!!!
+    $self->_commit();
+    
     print STDERR "Updated flatfields table\n";
     return 1;
 } # _update_derived_tables
@@ -805,22 +793,23 @@ sub _generate_new_derived_tables {
         croak __PACKAGE__ . " failed to prepare '$iq' : $DBI::errstr";
     }
 
+    # --------------------------------
     # Insert values for all the pages
-    my $transaction_on = 0;
+    # --------------------------------
+    # ============== Use transactions PROPERLY! ====================
+    # (Major bug when I tried to speed up updates by only committing one
+    # hundred records at a time, since with a large database, you could end up
+    # with a race condition, and the database would be incorrect!)
+    # ==============================================================
+    $ret = $dbh->do("BEGIN TRANSACTION;");
+    if (!$ret)
+    {
+        croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+    }
     my $num_trans = 0;
     my @pagefiles = $self->_get_all_pagefiles();
     foreach my $page (@pagefiles)
     {
-        if (!$transaction_on)
-        {
-            my $ret = $dbh->do("BEGIN TRANSACTION;");
-            if (!$ret)
-            {
-                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
-            }
-            $transaction_on = 1;
-            $num_trans = 0;
-        }
         my $meta = $self->_get_fields_for_page($page);
 
         my @values = ();
@@ -847,20 +836,10 @@ sub _generate_new_derived_tables {
         {
             croak __PACKAGE__ . " failed '$iq' (" . join(',', ($page, @values)) . "): $DBI::errstr";
         }
-        # do the commits in bursts
         $num_trans++;
-        if ($transaction_on and $num_trans > 100)
-        {
-            $self->_commit();
-            $transaction_on = 0;
-            $num_trans = 0;
-        }
 
     } # for each page
-    if ($transaction_on)
-    {
-        $self->_commit();
-    }
+    $self->_commit();
 
     print STDERR "Generated flatfields table\n";
     return 1;
@@ -908,36 +887,28 @@ sub _update_some_entries {
 
     my $dbh = $self->{dbh};
 
-    # update/add pages
-    my $transaction_on = 0;
+    # --------------------------------------
+    # Update/add pages
+    # --------------------------------------
+    # ============== Use transactions PROPERLY! ====================
+    # (Major bug when I tried to speed up updates by only committing 100
+    # records at a time, since with a large database, you could end up with
+    # a race condition, and the database would be incorrect!)
+    # ==============================================================
+    my $ret = $dbh->do("BEGIN TRANSACTION;");
+    if (!$ret)
+    {
+        croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+    }
     my $num_trans = 0;
     foreach my $pn (sort keys %pages)
     {
         print STDERR "UPDATING $pn\n";
-        if (!$transaction_on)
-        {
-            my $ret = $dbh->do("BEGIN TRANSACTION;");
-            if (!$ret)
-            {
-                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
-            }
-            $transaction_on = 1;
-            $num_trans = 0;
-        }
         $self->_add_page_data($pn, %{$pages{$pn}});
         # do the commits in bursts
         $num_trans++;
-        if ($transaction_on and $num_trans > 100)
-        {
-            $self->_commit();
-            $transaction_on = 0;
-            $num_trans = 0;
-        }
     }
-    if ($transaction_on)
-    {
-        $self->_commit();
-    }
+    $self->_commit();
 
     print STDERR "UPDATING DONE\n";
 } # _update_some_entries
@@ -961,36 +932,28 @@ sub _update_all_entries {
     $self->_drop_main_tables();
     $self->_create_tables();
 
-    # update/add pages
-    my $transaction_on = 0;
+    # --------------------------------------
+    # Update/add pages
+    # --------------------------------------
+    # ============== Use transactions PROPERLY! ====================
+    # (Major bug when I tried to speed up updates by only committing 100
+    # records at a time, since with a large database, you could end up with
+    # a race condition, and the database would be incorrect!)
+    # ==============================================================
+    my $ret = $dbh->do("BEGIN TRANSACTION;");
+    if (!$ret)
+    {
+        croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
+    }
     my $num_trans = 0;
     foreach my $pn (sort keys %pages)
     {
         print STDERR "UPDATING $pn\n";
-        if (!$transaction_on)
-        {
-            my $ret = $dbh->do("BEGIN TRANSACTION;");
-            if (!$ret)
-            {
-                croak __PACKAGE__ . " failed 'BEGIN TRANSACTION' : $DBI::errstr";
-            }
-            $transaction_on = 1;
-            $num_trans = 0;
-        }
         $self->_add_page_data($pn, %{$pages{$pn}});
         # do the commits in bursts
         $num_trans++;
-        if ($transaction_on and $num_trans > 100)
-        {
-            $self->_commit();
-            $transaction_on = 0;
-            $num_trans = 0;
-        }
     }
-    if ($transaction_on)
-    {
-        $self->_commit();
-    }
+    $self->_commit();
 
     print STDERR "UPDATING DONE\n";
 } # _update_all_entries
