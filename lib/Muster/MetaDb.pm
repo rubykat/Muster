@@ -761,6 +761,10 @@ sub _generate_new_derived_tables {
     }
     my @fieldnames = $self->_get_all_nonhidden_fieldnames();
     say STDERR "FIELDS: ", join(', ', @fieldnames);
+    if (!@fieldnames)
+    {
+        croak __PACKAGE__ . " empty fieldnames";
+    }
 
     # need to define some fields as numeric
     my @field_defs = ();
@@ -774,6 +778,10 @@ sub _generate_new_derived_tables {
         {
             push @field_defs, $field;
         }
+    }
+    if (!@field_defs)
+    {
+        croak __PACKAGE__ . " empty field_defs";
     }
     $q = "CREATE TABLE IF NOT EXISTS flatfields (page PRIMARY KEY, "
     . join(", ", @field_defs) .");";
