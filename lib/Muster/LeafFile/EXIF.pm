@@ -61,7 +61,7 @@ sub build_meta {
     # There are multiple fields which could be used as a file content creator.
     # Check through them until you find a non-empty one.
     my $creator = '';
-    foreach my $field (qw(Author Artist Creator))
+    foreach my $field (qw(Author Artist Creator MetadataCreator))
     {
         if (exists $info->{$field} and $info->{$field} and !$creator)
         {
@@ -93,6 +93,19 @@ sub build_meta {
     }
     $meta->{alt_text} = $alt_text if $alt_text;
 
+    # The URL could be from the Source or the Identifier
+    # Check through them until you find a non-empty one which contains an actual URL
+    foreach my $field (qw(Source Identifier MetadataIdentifier))
+    {
+        if (exists $info->{$field}
+                and $info->{$field}
+                and $info->{$field} =~ /^http/
+                and !exists $meta->{url})
+        {
+            $meta->{url} = $info->{$field};
+        }
+    }
+
     # CreateDate is going to be treated as a separate field
     my $create_date = '';
     foreach my $field (qw(CreateDate))
@@ -103,19 +116,6 @@ sub build_meta {
         }
     }
     $meta->{create_date} = $create_date if $create_date;
-
-    # The URL could be from the Source or the Identifier
-    # Check through them until you find a non-empty one which contains an actual URL
-    foreach my $field (qw(Source Identifier))
-    {
-        if (exists $info->{$field}
-                and $info->{$field}
-                and $info->{$field} =~ /^http/
-                and !exists $meta->{url})
-        {
-            $meta->{url} = $info->{$field};
-        }
-    }
 
     # There are multiple fields which could be used as a file date.
     # Check through them until you find a non-empty one.
