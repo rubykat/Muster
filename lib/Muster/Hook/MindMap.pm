@@ -24,6 +24,7 @@ The pattern for mind maps is "* mindmap"
 use Mojo::Base 'Muster::Hook';
 use Muster::Hooks;
 use Muster::LeafFile;
+use Text::Wrap;
 use YAML::Any;
 
 our $DEBUG = '';
