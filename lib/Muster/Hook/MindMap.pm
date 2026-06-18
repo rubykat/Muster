@@ -592,7 +592,7 @@ sub build_map_levels ($%) {
     my %args = @_;
 
     my $list_ref = $args{list};
-    my $level = $args{leve};
+    my $level = $args{level};
 
     my $map = '';
 
